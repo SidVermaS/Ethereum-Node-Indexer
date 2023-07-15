@@ -1,0 +1,31 @@
+version: '3'
+services:   
+  database:
+    image: postgres:14.8-bullseye
+    container_name: ecl_database
+    restart: on-failure
+    env_file: .env
+    ports:
+      - 54321:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  server:
+      container_name: ecl_server
+      build:
+        context: .
+        dockerfile: Dockerfile
+      env_file: .env
+      ports:
+        - 8080:8080
+      restart: on-failure
+      depends_on:
+        - database
+      networks:
+        - eclapp   
+volumes:
+  db_data:
+
+# Networks to be created to facilitate communication between containers
+networks:
+  eclapp:
+    driver: bridge
