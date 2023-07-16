@@ -19,3 +19,6 @@
 
 # Go workspace file
 go.work
+
+# Tmp folder created by air
+pkg/tmp/*
