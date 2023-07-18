@@ -6,8 +6,12 @@ import (
 	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/consts"
 	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/migrations"
 	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/types/structs"
+	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/utils"
 	"github.com/joho/godotenv"
 )
+
+var Repository *structs.DBRepository = &structs.DBRepository{}
+var CronInstance *structs.Cron = &structs.Cron{}
 
 func InitializeDB() {
 	dbConfig := &structs.DbConfig{
@@ -18,7 +22,8 @@ func InitializeDB() {
 		Port:     os.Getenv(string(consts.POSTGRES_PORT)),
 		SSLMode:  os.Getenv(string(consts.POSTGRES_SSL_MODE)),
 	}
-	CreateConnection(dbConfig)
+	// Passed the configuration and the DBRepository to initialize the gorm.DB instance
+	CreateConnection(dbConfig, Repository)
 }
 
 func InitializeAll() {
@@ -29,4 +34,7 @@ func InitializeAll() {
 	InitializeDB()
 	// It needs to be executed only for the first time
 	migrations.InitialMigration(Repository.DB)
+
+	// Initialize & Start Crons Scheduler
+	utils.InitializeCron(CronInstance)
 }
