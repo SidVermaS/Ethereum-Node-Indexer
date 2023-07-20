@@ -3,7 +3,7 @@ package structs
 import (
 	"fmt"
 
-	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/consts"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/consts"
 	"github.com/go-co-op/gocron"
 )
 

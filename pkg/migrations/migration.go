@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/models"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/models"
 	"gorm.io/gorm"
 )
 

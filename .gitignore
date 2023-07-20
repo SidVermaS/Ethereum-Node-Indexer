@@ -22,3 +22,9 @@ go.work
 
 # Tmp folder created by air
 pkg/tmp/*
+
+# Including only the token files
+besu
+!besu/token.txt
+teku
+!teku/token.txt

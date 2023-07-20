@@ -3,15 +3,17 @@ package config
 import (
 	"os"
 
-	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/consts"
-	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/migrations"
-	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/types/structs"
-	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/utils"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/consts"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/migrations"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/types/structs"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/utils"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors"
 	"github.com/joho/godotenv"
 )
 
 var Repository *structs.DBRepository = &structs.DBRepository{}
 var CronInstance *structs.Cron = &structs.Cron{}
+var ConsensysVendor *vendors.Consensys = &vendors.Consensys{}
 
 func InitializeDB() {
 	dbConfig := &structs.DbConfig{
@@ -25,7 +27,9 @@ func InitializeDB() {
 	// Passed the configuration and the DBRepository to initialize the gorm.DB instance
 	CreateConnection(dbConfig, Repository)
 }
-
+func UseVendorsService() {
+	ConsensysVendor.AccessConsensysNode()
+}
 func InitializeAll() {
 	// Load the .env file
 	godotenv.Load(".env")
@@ -37,4 +41,7 @@ func InitializeAll() {
 
 	// Initialize & Start Crons Scheduler
 	utils.InitializeCron(CronInstance)
+
+	//	Accesses vendors' services
+	// UseVendorsService()
 }

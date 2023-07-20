@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/SidVermaS/Ethereum-Consensus-Layer/pkg/types/structs"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/types/structs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

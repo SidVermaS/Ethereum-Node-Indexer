@@ -1,5 +1,5 @@
 # Start with a base Golang image
-FROM golang:1.19.2-bullseye AS builder
+FROM golang:1.20-alpine3.18 AS builder
 
 # Add Maintainer's information
 LABEL maintainer="Sid Verma <sidvermas1234@gmail.com>"
@@ -17,9 +17,9 @@ RUN go mod download
 COPY . .
 COPY .env .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o github.com/SidVermaS/Ethereum-Consensus-Layer
+RUN CGO_ENABLED=0 GOOS=linux go build -o github.com/SidVermaS/Ethereum-Consensus
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
-CMD ["github.com/SidVermaS/Ethereum-Consensus-Layer"]
+CMD ["github.com/SidVermaS/Ethereum-Consensus"]
