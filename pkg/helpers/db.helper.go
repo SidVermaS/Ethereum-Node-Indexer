@@ -1,9 +1,9 @@
-package config
+package helpers
 
 import (
 	"fmt"
 
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/types/structs"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/structs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -16,6 +16,6 @@ func CreateConnection(config *structs.DbConfig, repository *structs.DBRepository
 	if err != nil {
 		return db, err
 	}
-	Repository.DB = db
+	repository.DB = db
 	return db, nil
 }

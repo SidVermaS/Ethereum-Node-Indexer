@@ -31,7 +31,7 @@ eventsList.map((eventsItem) => {
 const getMatching = () => {
   const blockCount = {};
   eventsResult.map((eventsResultItem) => {
-    const block = eventsResultItem?.data?.block;
+    const block = eventsResultItem?.data?.epoch;
     if (block) {
       if (blockCount[block] === undefined) {
         blockCount[block] = 0;

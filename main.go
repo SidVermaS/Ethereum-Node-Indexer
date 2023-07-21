@@ -1,18 +1,21 @@
 package main
 
 import (
-	
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/config"
-	"github.com/gofiber/fiber/v2"
+	"encoding/json"
+	"net/http"
+
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/helpers"
 )
 
+func GreetHandler(w http.ResponseWriter, r *http.Request)	{
+	w.Header().Set("Content-Type","application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"data":"hello "})
+}
+
 func main() {
-	config.InitializeAll()
-	app := fiber.New()
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello EC!")
-	})
-
-	app.Listen(":8080")
+	helpers.InitializeAll()
+	http.HandleFunc("/",GreetHandler)
+	err:=http.ListenAndServe(":8080",nil)
+	panic(err)
 }
