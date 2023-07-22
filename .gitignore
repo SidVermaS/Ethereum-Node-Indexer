@@ -19,3 +19,16 @@
 
 # Go workspace file
 go.work
+
+# Tmp folder created by air
+pkg/tmp/*
+
+tmp/*
+
+# Including only the token files
+besu/*
+!besu/token.txt
+!besu/jwtsecret.hex
+teku/*
+!teku/token.txt
+!teku/jwtsecret.hex
