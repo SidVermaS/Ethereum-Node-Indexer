@@ -13,7 +13,10 @@ const (
 	Consensys VendorNamesE = "Consensys"
 )
 
-var VendorConfigMap = map[VendorNamesE]vstructs.Vendor{Consensys: {
-	BaseURL: os.Getenv(fmt.Sprintf("%s%s", string(CONSENSYS_CLIENT_HOST), string(CONSENSYS_CLIENT_PORT))),
-}}
+var VendorConfigMap = map[VendorNamesE]vstructs.Vendor{}
 
+func InitializeVendorConfig() {
+	VendorConfigMap[Consensys] = vstructs.Vendor{
+		BaseURL: fmt.Sprintf("%s:%s", os.Getenv(string(CONSENSYS_CLIENT_HOST)), os.Getenv(string(CONSENSYS_CLIENT_PORT))),
+	}
+}

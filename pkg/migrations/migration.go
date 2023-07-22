@@ -7,5 +7,5 @@ import (
 
 // Migrates all the tables (It needs to be executed only for the first time)
 func InitialMigration(db *gorm.DB) {
-	db.AutoMigrate(&models.Block{})
+	db.AutoMigrate(&models.Block{}, &models.Epoch{}, &models.Validator{}, &models.Slot{}, &models.Committee{})
 }

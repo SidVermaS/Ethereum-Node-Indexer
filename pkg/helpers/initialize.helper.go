@@ -2,17 +2,19 @@ package helpers
 
 import (
 	"os"
+	"sync"
 
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/consts"
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/migrations"
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/structs"
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys"
-	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
+
 	"github.com/joho/godotenv"
 )
 
 var Repository *structs.DBRepository = &structs.DBRepository{}
 var ConsensysVendor *consensys.Consensys
+var Wg *sync.WaitGroup=&sync.WaitGroup{}
 
 func InitializeDB() {
 	dbConfig := &structs.DbConfig{
@@ -29,7 +31,8 @@ func InitializeDB() {
 
 func UseServices() {
 	ConsensysVendor = GetVendor(consts.Consensys)
-	StreamConsensysNode(ConsensysVendor, consensysconsts.AllConsensysTopics)
+
+	// go StreamConsensysNode(ConsensysVendor, consensysconsts.AllConsensysTopics)
 }
 func InitializeAll() {
 	// Load the .env file
@@ -40,6 +43,10 @@ func InitializeAll() {
 	// It needs to be executed only for the first time
 	migrations.InitialMigration(Repository.DB)
 
+	// Initialize Vendor Configuration
+	consts.InitializeVendorConfig()
+
 	//	Accesses various services
 	UseServices()
+	
 }

@@ -15,26 +15,29 @@ import (
 )
 
 func errorHandler(err error) error {
-	log.Printf("error: %s", err)
+	log.Printf("~~~ EventListener error: %s", err)
 	return err
 }
+
+var Count uint = 0
+
 func eventHandler(event *sseclient.Event) error {
-	log.Printf("event : %s : %s : %d bytes", event.ID, event.Event, len(event.Data))
+	if Count < 5 {
+		log.Printf("~~~ event : %s : %s : %s ", event.ID, event.Event, event.Data)
+		Count = Count + 1
+	}
 	var err error = nil
 	return err
 }
 func StreamConsensysNode(consensysVendor *consensys.Consensys, topicsSlice []consensysconsts.ConsensysTopicsE) {
 
 	var topicsStringSlice []string = consensysutils.ConvertTopicsSliceToStringSlice(topicsSlice)
-
+	//	http://localhost:5051
 	var topics string = strings.Join(topicsStringSlice, ",")
-	topics = topics[0 : len(topics)-1]
-	// consensys.Consensys.Vendor
-	var u string = fmt.Sprintf("%s?topics=%s", consensysVendor.Vendor.BaseURL, "")
-	log.Printf("~~~ url: %s\n", u)
+	var u string = fmt.Sprintf("%s/eth/v1/events?topics=%s", consensysVendor.Vendor.BaseURL, topics)
 	eventSource := sseclient.New(u, "")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
+	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
+	// defer cancel()
 	eventSource.Start(ctx, eventHandler, errorHandler)
 
 }

@@ -8,5 +8,6 @@ import (
 func GetVendor(VendorName consts.VendorNamesE) *vendors.Consensys {
 	var ConsensysVendor *vendors.Consensys = &vendors.Consensys{}
 	ConsensysVendor.Vendor = consts.VendorConfigMap[VendorName]
+
 	return ConsensysVendor
 }
