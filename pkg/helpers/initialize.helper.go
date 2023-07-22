@@ -8,6 +8,8 @@ import (
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/migrations"
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/structs"
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys"
+	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
+	"gorm.io/gorm"
 
 	"github.com/joho/godotenv"
 )
@@ -15,7 +17,9 @@ import (
 var Repository *structs.DBRepository = &structs.DBRepository{}
 var ConsensysVendor *consensys.Consensys
 var Wg *sync.WaitGroup=&sync.WaitGroup{}
-
+func GetDBInstance() *gorm.DB	{
+	return Repository.DB
+}
 func InitializeDB() {
 	dbConfig := &structs.DbConfig{
 		Host:     os.Getenv(string(consts.POSTGRES_HOST)),
@@ -32,7 +36,7 @@ func InitializeDB() {
 func UseServices() {
 	ConsensysVendor = GetVendor(consts.Consensys)
 
-	// go StreamConsensysNode(ConsensysVendor, consensysconsts.AllConsensysTopics)
+	StreamConsensysNode(ConsensysVendor, consensysconsts.AllConsensysTopics)
 }
 func InitializeAll() {
 	// Load the .env file
@@ -47,6 +51,6 @@ func InitializeAll() {
 	consts.InitializeVendorConfig()
 
 	//	Accesses various services
-	UseServices()
+	go UseServices()
 	
 }

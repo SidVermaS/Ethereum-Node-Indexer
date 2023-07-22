@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -10,8 +11,9 @@ import (
 	sseclient "github.com/advbet/sseclient"
 
 	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys"
+	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consensysstructs"
 	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
-	consensysutils "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/utils"
+	consensyshelpers "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/helpers"
 )
 
 func errorHandler(err error) error {
@@ -19,20 +21,34 @@ func errorHandler(err error) error {
 	return err
 }
 
-var Count uint = 0
+var EpochsCount uint = 0
+var AreEpochsSaved bool = false
+var FinalizedCheckpoints []*consensysstructs.FinalizedCheckpoint
 
 func eventHandler(event *sseclient.Event) error {
-	if Count < 5 {
-		log.Printf("~~~ event : %s : %s : %s ", event.ID, event.Event, event.Data)
-		Count = Count + 1
+	if event.Event == string(consensysconsts.Finalized_checkpoint) {
+		if EpochsCount < 5 {
+			// log.Printf("~~~ event : %s : %s : %s ", event.ID, event.Event, event.Data)
+			EpochsCount = EpochsCount + 1
+			var finalizedCheckpoint *consensysstructs.FinalizedCheckpoint
+			err := json.Unmarshal(event.Data, &finalizedCheckpoint)
+			if err != nil {
+				return err
+			}
+			FinalizedCheckpoints = append(FinalizedCheckpoints, finalizedCheckpoint)
+		} else if !AreEpochsSaved {
+			AreEpochsSaved = true
+			ProcessToSaveDataForIndexing(FinalizedCheckpoints)
+		}
 	}
 	var err error = nil
 	return err
 }
 func StreamConsensysNode(consensysVendor *consensys.Consensys, topicsSlice []consensysconsts.ConsensysTopicsE) {
 
-	var topicsStringSlice []string = consensysutils.ConvertTopicsSliceToStringSlice(topicsSlice)
+	var topicsStringSlice []string = consensyshelpers.ConvertTopicsSliceToStringSlice(topicsSlice)
 	//	http://localhost:5051
+	fmt.Println("~~~ StreamConsensysNode()")
 	var topics string = strings.Join(topicsStringSlice, ",")
 	var u string = fmt.Sprintf("%s/eth/v1/events?topics=%s", consensysVendor.Vendor.BaseURL, topics)
 	eventSource := sseclient.New(u, "")
