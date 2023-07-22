@@ -1,4 +1,4 @@
-package consensysutils
+package consensyshelpers
 
 import (
 	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
@@ -11,3 +11,4 @@ func ConvertTopicsSliceToStringSlice(topics []consensysconsts.ConsensysTopicsE) 
 	}
 	return stringSlice
 }
+

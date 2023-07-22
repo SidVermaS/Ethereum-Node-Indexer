@@ -1,6 +1,7 @@
 package consensysconsts
 
 type ConsensysTopicsE string
+type StateIdsE string
 
 const (
 	Head                   ConsensysTopicsE = "head"
@@ -11,7 +12,8 @@ const (
 	Voluntary_exit         ConsensysTopicsE = "voluntary_exit"
 	Contribution_and_proof ConsensysTopicsE = "contribution_and_proof"
 )
-var AllConsensysTopics =[]ConsensysTopicsE{
+
+var AllConsensysTopics = []ConsensysTopicsE{
 	Head,
 	Finalized_checkpoint,
 	Chain_reorg,
@@ -20,3 +22,9 @@ var AllConsensysTopics =[]ConsensysTopicsE{
 	Voluntary_exit,
 	Contribution_and_proof,
 }
+
+const (
+	Genesis   StateIdsE = "genesis"
+	Finalized StateIdsE = "finalized"
+	Justified StateIdsE = "justified"
+)

@@ -2,7 +2,7 @@ package models
 
 type Epoch struct {
 	ID    uint  `json:"id" gorm:"primaryKey;autoIncrement;not null"`
-	Root  uint  `json:"root" gorm:"->;<-:create"`
+	Epoch  uint  `json:"epoch" gorm:"unique_index;not null"`
 	Bid   uint  `json:"bid"`
 	Block Block `gorm:"foreignKey:Bid;not null"`
 }
