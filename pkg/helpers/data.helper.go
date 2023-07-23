@@ -1,27 +1,39 @@
 package helpers
 
 import (
+	"encoding/json"
+	"log"
+	"os"
 	"strconv"
 	"sync"
 
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/consts"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/models"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/repositories"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consensysstructs"
-	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/consts"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/models"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/modules"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/repositories"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/structs"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consensysstructs"
+	consensysconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consts"
 )
 
 var waitGroup = &sync.WaitGroup{}
 
 // create a channel to communicate between goroutines (SaveBlocks(), SaveEpochs())
 var blocksEpochsChannel chan []*models.Block = make(chan []*models.Block)
+var epochsStatesChannel chan []*models.Epoch = make(chan []*models.Epoch)
+var statesAndValidatorsChannel chan []*models.State = make(chan []*models.State)
+
+var validatorToValidatorsStatusChannel chan *structs.ValidatorToValidatorsStatusChannelStruct = make(chan *structs.ValidatorToValidatorsStatusChannelStruct)
 
 func ProcessToSaveDataForIndexing(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint) {
-	waitGroup.Add(3)
+	waitGroup.Add(5)
 	go SaveBlocks(finalizedCheckpoints, waitGroup)
 	go SaveEpochs(finalizedCheckpoints, waitGroup)
-	go SaveValidators(consensysconsts.Finalized, waitGroup)
+	go SaveStates(finalizedCheckpoints, waitGroup)
+	go SaveValidators(waitGroup)
+	go SaveValidatorsStatus(waitGroup)
+	go SaveSlotsAndCommittees(waitGroup)
 	waitGroup.Wait()
 }
 
@@ -47,37 +59,123 @@ func SaveEpochs(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 
 	var epochs []*models.Epoch
 	for index, blockItem := range blocks {
-		epoch, _ := strconv.Atoi(finalizedCheckpoints[index].Epoch)
+		period, _ := strconv.Atoi(finalizedCheckpoints[index].Epoch)
 		epochs = append(epochs, &models.Epoch{
-			Epoch: uint(epoch),
-			Bid:   uint(blockItem.ID),
+			Period: uint(period),
+			Bid:    uint(blockItem.ID),
 		})
 	}
 	epochRepo := &repositories.EpochRepo{
 		Db: GetDBInstance(),
 	}
+
 	err := epochRepo.CreateMany(epochs)
 	if err != nil {
-		panic(err)
+		log.Printf("~~~ SaveEpochs() err: %s", err.Error())
 	}
+	epochsStatesChannel <- epochs
 }
-func SaveValidators(stateId consensysconsts.StateIdsE, processWaitGroup *sync.WaitGroup) {
+
+func SaveStates(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
-	var consensys *consensys.Consensys = &consensys.Consensys{
+	epochs := <-epochsStatesChannel
+
+	var states []*models.State
+	for index, epochItem := range epochs {
+		states = append(states, &models.State{
+			StateStored: finalizedCheckpoints[index].State,
+			Bid:         epochItem.Bid,
+			Eid:         epochItem.ID,
+		})
+	}
+	stateRepo := &repositories.StateRepo{
+		Db: GetDBInstance(),
+	}
+	err := stateRepo.CreateMany(states)
+	if err != nil {
+		log.Printf("~~~ SaveStates err: %s \n", err.Error())
+	}
+	statesAndValidatorsChannel <- states
+}
+func SaveValidators(processWaitGroup *sync.WaitGroup) {
+	defer processWaitGroup.Done()
+	states := <-statesAndValidatorsChannel
+	var consensysInstance *consensys.Consensys = &consensys.Consensys{
 		Vendor: consts.VendorConfigMap[consts.Consensys],
 	}
-	var getValidatorsFromStateResponse *consensysstructs.GetValidatorsFromStateResponse = consensys.GetValidatorsFromState(stateId)
+	getValidatorsFromStateWaitGroup := &sync.WaitGroup{}
+	mux := &sync.Mutex{}
+	var validatorsToBeCreated []*models.Validator
+	var validatorStatusToBeCreated []*models.ValidatorStatus
+	queueForValidatorToValidatorsStatusChannel := make(chan *structs.ValidatorToValidatorsStatusChannelStruct)
+	for _, stateItem := range states {
+		getValidatorsFromStateWaitGroup.Add(1)
+		// StateStored can be passed for the results in that specifice state
+		go modules.GetValidatorsFromState(stateItem.ID, stateItem.Eid, string(consensysconsts.Finalized), consensysInstance, queueForValidatorToValidatorsStatusChannel)
+	}
+	go func() {
+		for queueForValidatorToValidatorsStatusChannelReceived := range queueForValidatorToValidatorsStatusChannel {
+			mux.Lock()
+			validatorsToBeCreated = append(validatorsToBeCreated, queueForValidatorToValidatorsStatusChannelReceived.Validators...)
+			validatorStatusToBeCreated = append(validatorStatusToBeCreated, queueForValidatorToValidatorsStatusChannelReceived.ValidatorStatuses...)
+			mux.Unlock()
+			getValidatorsFromStateWaitGroup.Done()
+		}
+	}()
+	getValidatorsFromStateWaitGroup.Wait()
 	validatorRepo := &repositories.ValidatorRepo{
 		Db: GetDBInstance(),
 	}
-	var validators []*models.Validator
 
-	for _, validatorItem := range getValidatorsFromStateResponse.Data {
-		validators = append(validators, &models.Validator{PublicKey: validatorItem.Validator.Pubkey, IsSlashed: validatorItem.Validator.Slashed, Status: validatorItem.Status})
-	}
-	err := validatorRepo.CreateMany(validators)
+	err := validatorRepo.CreateMany(validatorsToBeCreated)
 	if err != nil {
-		panic(err)
+		log.Printf("~~~ SaveValidators err: %s \n", err.Error())
+		// panic(err)
 	}
-
+	validatorToValidatorsStatusChannel <- &structs.ValidatorToValidatorsStatusChannelStruct{ValidatorStatuses: validatorStatusToBeCreated, Validators: validatorsToBeCreated}
 }
+
+func SaveValidatorsStatus(processWaitGroup *sync.WaitGroup) {
+	defer processWaitGroup.Done()
+	validatorToValidatorsStatusChannelData := <-validatorToValidatorsStatusChannel
+	var validatorStatuses []*models.ValidatorStatus
+	var indexes []uint64
+	for _, validatorsItem := range validatorToValidatorsStatusChannelData.Validators {
+		indexes = append(indexes, validatorsItem.Index)
+	}
+	validatorRepo := &repositories.ValidatorRepo{
+		Db: GetDBInstance(),
+	}
+	validators, _ := validatorRepo.FetchFromIndexes(indexes)
+
+	 indexValidatorsMap:= map[uint64]uint{}
+
+	for _, validatorsItem := range validators {
+		indexValidatorsMap[validatorsItem.Index] = validatorsItem.ID
+	}
+	for iteratedIndex, validatorStatusItem := range validatorToValidatorsStatusChannelData.ValidatorStatuses {
+		indexValidatorsMapValue, exists := indexValidatorsMap[validatorToValidatorsStatusChannelData.Validators[iteratedIndex].Index]
+		if exists {
+			validatorStatuses = append(validatorStatuses, &models.ValidatorStatus{
+				StateId:   validatorStatusItem.StateId,
+				Eid:       validatorStatusItem.Eid,
+				IsSlashed: validatorStatusItem.IsSlashed,
+				Status:    validatorStatusItem.Status,
+				Vid:       indexValidatorsMapValue,
+			})
+		}
+	}
+	file, _ := os.OpenFile("./vs.json", os.O_CREATE, os.ModePerm)
+	out, _ := json.Marshal(validatorStatuses)
+	file.WriteString(string(out))
+	validatorStatusRepo := &repositories.ValidatorStatusRepo{
+		Db: GetDBInstance(),
+	}
+	err := validatorStatusRepo.CreateMany(validatorStatuses)
+	if err != nil {
+		log.Printf("~~~ SaveValidatorsStatus err: %s \n", err.Error())
+		// panic(err)
+	}
+}
+
+func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {}

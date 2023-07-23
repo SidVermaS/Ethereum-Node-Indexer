@@ -10,10 +10,10 @@ import (
 
 	sseclient "github.com/advbet/sseclient"
 
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consensysstructs"
-	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
-	consensyshelpers "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/helpers"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consensysstructs"
+	consensysconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consts"
+	consensyshelpers "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/helpers"
 )
 
 func errorHandler(err error) error {
@@ -28,7 +28,7 @@ var FinalizedCheckpoints []*consensysstructs.FinalizedCheckpoint
 func eventHandler(event *sseclient.Event) error {
 	if event.Event == string(consensysconsts.Finalized_checkpoint) {
 		if EpochsCount < 5 {
-			// log.Printf("~~~ event : %s : %s : %s ", event.ID, event.Event, event.Data)
+			log.Printf("~~~ event : %s : %s : %s ", event.ID, event.Event, event.Data)
 			EpochsCount = EpochsCount + 1
 			var finalizedCheckpoint *consensysstructs.FinalizedCheckpoint
 			err := json.Unmarshal(event.Data, &finalizedCheckpoint)

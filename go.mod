@@ -1,4 +1,4 @@
-module github.com/SidVermaS/Ethereum-Consensus
+module github.com/SidVermaS/Ethereum-Node-Indexer
 
 go 1.20
 

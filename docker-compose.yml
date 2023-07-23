@@ -2,7 +2,7 @@ version: '3.4'
 services:   
   database:
     image: postgres:14.8-alpine
-    container_name: ec_database
+    container_name: eni_database
     restart: on-failure
     env_file: .env
     ports:

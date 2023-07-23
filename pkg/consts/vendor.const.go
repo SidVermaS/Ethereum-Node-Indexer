@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	vstructs "github.com/SidVermaS/Ethereum-Consensus/pkg/vendorpkg/structs"
+	vstructs "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendorpkg/structs"
 )
 
 type VendorNamesE string

@@ -1,8 +1,9 @@
 package repositories
 
 import (
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/models"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type BlockRepo struct {
@@ -13,7 +14,9 @@ func (blockRepo *BlockRepo) CreateMany(blocks []*models.Block) error {
 	for index, blockItem := range blocks {
 		blocks[index] = &models.Block{Root: blockItem.Root}
 	}
-	result := blockRepo.Db.Create(blocks)
+	result := blockRepo.Db.Clauses(clause.OnConflict{
+		DoNothing: true,
+	}).CreateInBatches(blocks, 100)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -28,5 +31,3 @@ func (blockRepo *BlockRepo) Create(block *models.Block) (uint, error) {
 	}
 	return block.ID, nil
 }
-
- 

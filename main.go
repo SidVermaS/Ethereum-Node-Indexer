@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/consts"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/helpers"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/consts"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/helpers"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -30,5 +30,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 }

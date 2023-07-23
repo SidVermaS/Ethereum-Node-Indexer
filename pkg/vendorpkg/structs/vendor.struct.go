@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
-	vconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendorpkg/consts"
+	vconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendorpkg/consts"
 	"golang.org/x/exp/slices"
 )
 
@@ -20,11 +20,11 @@ type Vendor struct {
 	CustomConfig map[string]interface{}
 }
 type APIRequest struct {
-	Body                     interface{}
-	Method                   vconsts.HttpMethodsE
-	Query                    url.Values
-	Param                    string
-	Url                      string
+	Body   interface{}
+	Method vconsts.HttpMethodsE
+	Query  url.Values
+	Param  string
+	Url    string
 }
 
 func (vendor *Vendor) CallAPI(apiRequest *APIRequest) (int, []byte, error) {
