@@ -1,9 +1,7 @@
 package helpers
 
 import (
-	"encoding/json"
 	"log"
-	"os"
 	"strconv"
 	"sync"
 
@@ -165,9 +163,6 @@ func SaveValidatorsStatus(processWaitGroup *sync.WaitGroup) {
 			})
 		}
 	}
-	file, _ := os.OpenFile("./vs.json", os.O_CREATE, os.ModePerm)
-	out, _ := json.Marshal(validatorStatuses)
-	file.WriteString(string(out))
 	validatorStatusRepo := &repositories.ValidatorStatusRepo{
 		Db: GetDBInstance(),
 	}
