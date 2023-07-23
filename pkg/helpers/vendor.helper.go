@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/consts"
-	vendors "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/consts"
+	vendors "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys"
 )
 
 func GetVendor(VendorName consts.VendorNamesE) *vendors.Consensys {

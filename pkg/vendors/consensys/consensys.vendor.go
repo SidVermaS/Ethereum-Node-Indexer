@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	vstructs "github.com/SidVermaS/Ethereum-Consensus/pkg/vendorpkg/structs"
+	vstructs "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendorpkg/structs"
 
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consensysstructs"
-	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consensysstructs"
 )
 
 type Consensys struct {
@@ -16,11 +15,12 @@ type Consensys struct {
 	Topics []string
 }
 
-func (consensys *Consensys) GetValidatorsFromState(stateId consensysconsts.StateIdsE) (*consensysstructs.GetValidatorsFromStateResponse) {
-	statusCode, response, _ := consensys.Vendor.CallAPI(&vstructs.APIRequest{Url: fmt.Sprintf("/eth/v1/beacon/states/%s/validators", string(stateId))})
-	fmt.Println("statusCode: ", statusCode)
+func (consensys *Consensys) GetValidatorsFromState(stateIdentifierOrHex string) *consensysstructs.GetValidatorsFromStateResponse {
+	_, response, _ := consensys.Vendor.CallAPI(&vstructs.APIRequest{Url: fmt.Sprintf("/eth/v1/beacon/states/%s/validators", stateIdentifierOrHex)})
 	var getValidatorsFromStateResponse *consensysstructs.GetValidatorsFromStateResponse
 	err := json.Unmarshal(response, &getValidatorsFromStateResponse)
+	
+	
 	if err != nil {
 		log.Printf("~~~ Error GetValidatorsFromState() %s\n", err)
 	}

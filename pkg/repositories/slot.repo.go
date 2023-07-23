@@ -1,8 +1,9 @@
 package repositories
 
 import (
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/models"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type SlotRepo struct {
@@ -13,7 +14,9 @@ func (slotRepo *SlotRepo) CreateMany(slots []*models.Slot) error {
 	for index, slotItem := range slots {
 		slots[index] = &models.Slot{Eid: slotItem.Eid, Index: slotItem.Index}
 	}
-	result := slotRepo.Db.Create(slots)
+	result := slotRepo.Db.Clauses(clause.OnConflict{
+		DoNothing: true,
+	}).CreateInBatches(slots, 100)
 	if result.Error != nil {
 		return result.Error
 	}

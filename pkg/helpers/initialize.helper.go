@@ -4,11 +4,11 @@ import (
 	"os"
 	"sync"
 
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/consts"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/migrations"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/structs"
-	"github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys"
-	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/consts"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/migrations"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/structs"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys"
+	consensysconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consts"
 	"gorm.io/gorm"
 
 	"github.com/joho/godotenv"
@@ -16,8 +16,9 @@ import (
 
 var Repository *structs.DBRepository = &structs.DBRepository{}
 var ConsensysVendor *consensys.Consensys
-var Wg *sync.WaitGroup=&sync.WaitGroup{}
-func GetDBInstance() *gorm.DB	{
+var Wg *sync.WaitGroup = &sync.WaitGroup{}
+
+func GetDBInstance() *gorm.DB {
 	return Repository.DB
 }
 func InitializeDB() {
@@ -52,5 +53,5 @@ func InitializeAll() {
 
 	//	Accesses various services
 	go UseServices()
-	
+
 }

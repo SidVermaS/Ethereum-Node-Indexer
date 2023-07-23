@@ -17,9 +17,9 @@ RUN go mod download
 COPY . .
 COPY .env .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o github.com/SidVermaS/Ethereum-Consensus
+RUN CGO_ENABLED=0 GOOS=linux go build -o github.com/SidVermaS/Ethereum-Node-Indexer
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
-CMD ["github.com/SidVermaS/Ethereum-Consensus"]
+CMD ["github.com/SidVermaS/Ethereum-Node-Indexer"]

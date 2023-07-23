@@ -1,7 +1,7 @@
 package consensyshelpers
 
 import (
-	consensysconsts "github.com/SidVermaS/Ethereum-Consensus/pkg/vendors/consensys/consts"
+	consensysconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consts"
 )
 
 func ConvertTopicsSliceToStringSlice(topics []consensysconsts.ConsensysTopicsE) []string {
@@ -11,4 +11,3 @@ func ConvertTopicsSliceToStringSlice(topics []consensysconsts.ConsensysTopicsE) 
 	}
 	return stringSlice
 }
-
