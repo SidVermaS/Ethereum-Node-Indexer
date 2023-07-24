@@ -281,10 +281,6 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	for _, validatorItem := range validators {
 		validatorsMap[fmt.Sprint(validatorItem.Index)] = validatorItem
 	}
-	file, _ := os.Create("states.json")
-	data, _ := json.Marshal(states)
-	file.Write(data)
-	defer file.Close()
 	var committees []*models.Committee
 	for committieesFromStateAndEpochDataArrayIndex, committieesFromStateAndEpochDataArrayItem := range CommittieesFromStateAndEpochDataArray {
 		for slotIndex, slotDataItem := range committieesFromStateAndEpochDataArrayItem.SlotData {
