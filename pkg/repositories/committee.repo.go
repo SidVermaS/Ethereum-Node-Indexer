@@ -12,7 +12,7 @@ type CommitteeRepo struct {
 
 func (committeeRepo *CommitteeRepo) CreateMany(committees []*models.Committee) error {
 	for index, committeeItem := range committees {
-		committees[index] = &models.Committee{Eid: committeeItem.Eid, SlotId:  committeeItem.SlotId, Vid: committeeItem.Vid}
+		committees[index] = &models.Committee{Eid: committeeItem.Eid,StateId: committeeItem.StateId, SlotId:  committeeItem.SlotId, Vid: committeeItem.Vid}
 	}
 	result := committeeRepo.Db.Clauses(clause.OnConflict{
 		DoNothing: true,
