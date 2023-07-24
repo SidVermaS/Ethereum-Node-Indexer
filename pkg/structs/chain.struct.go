@@ -16,8 +16,9 @@ type ValidatorToValidatorsStatusChannelStruct struct {
 	ValidatorStatuses []*models.ValidatorStatus
 }
 
-type CommittiesFromStateAndEpochData struct	{
+type CommittieesFromStateAndEpochData struct	{
 	Eid        uint
 	StateId uint
 	SlotData []consensysstructs.SlotData
 }
+
