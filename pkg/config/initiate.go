@@ -1,26 +1,43 @@
-package helpers
+package configs
 
 import (
+	"fmt"
 	"os"
-	"sync"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/consts"
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/migrations"
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/structs"
-	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys"
-	consensysconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consts"
-	"gorm.io/gorm"
-
-	"github.com/joho/godotenv"
 )
 
 var Repository *structs.DBRepository = &structs.DBRepository{}
-var ConsensysVendor *consensys.Consensys
-var Wg *sync.WaitGroup = &sync.WaitGroup{}
 
 func GetDBInstance() *gorm.DB {
 	return Repository.DB
 }
+
+// The gorm DB Connection is closed
+func CloseDBConnection() {
+	db, _ := Repository.DB.DB()
+	db.Close()
+}
+
+// Connecting to the Database
+func CreateConnection(config *structs.DbConfig, repository *structs.DBRepository) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", config.Host, config.User, config.Password, config.DBName, config.Port, config.SSLMode)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		// Logger: logger.Default.LogMode(logger.Silent)
+	})
+	if err != nil {
+		return db, err
+	}
+	repository.DB = db
+	return db, nil
+}
+
 func InitializeDB() {
 	dbConfig := &structs.DbConfig{
 		Host:     os.Getenv(string(consts.POSTGRES_HOST)),
@@ -32,26 +49,7 @@ func InitializeDB() {
 	}
 	// Passed the configuration and the DBRepository to initialize the gorm.DB instance
 	CreateConnection(dbConfig, Repository)
-}
 
-func UseServices() {
-	ConsensysVendor = GetVendor(consts.Consensys)
-
-	StreamConsensysNode(ConsensysVendor, consensysconsts.AllConsensysTopics)
-}
-func InitializeAll() {
-	// Load the .env file
-	godotenv.Load(".env")
-
-	// Initializing the Database
-	InitializeDB()
 	// It needs to be executed only for the first time
 	migrations.InitialMigration(Repository.DB)
-
-	// Initialize Vendor Configuration
-	consts.InitializeVendorConfig()
-
-	//	Accesses various services
-	go UseServices()
-
 }

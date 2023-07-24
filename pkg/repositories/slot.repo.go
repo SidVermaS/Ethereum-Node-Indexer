@@ -12,11 +12,13 @@ type SlotRepo struct {
 
 func (slotRepo *SlotRepo) CreateMany(slots []*models.Slot) error {
 	for index, slotItem := range slots {
-		slots[index] = &models.Slot{Eid: slotItem.Eid, Index: slotItem.Index}
+		slots[index] = &models.Slot{Eid: slotItem.Eid,StateId: slotItem.StateId, Index: slotItem.Index, }
 	}
+
 	result := slotRepo.Db.Clauses(clause.OnConflict{
 		DoNothing: true,
 	}).CreateInBatches(slots, 100)
+
 	if result.Error != nil {
 		return result.Error
 	}

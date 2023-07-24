@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"log"
+
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -32,10 +34,20 @@ func (epochRepo *EpochRepo) Create(epoch *models.Epoch) (uint, error) {
 	return epoch.ID, nil
 }
 
-func (epochRepo *EpochRepo) FetchFromIDs(ids []uint) ([]*models.Epoch, error) {
+func (epochRepo *EpochRepo) FetchByIDs(ids []uint) ([]*models.Epoch, error) {
 	var epochs []*models.Epoch
 	result := epochRepo.Db.Where("id IN ?", ids).Find(&epochs)
 	if result.Error != nil {
+		return nil, result.Error
+	}
+	return epochs, nil
+}
+
+func (epochRepo *EpochRepo) FetchWithLimit(limit int) ([]*models.Epoch, error) {
+	var epochs []*models.Epoch
+	result := epochRepo.Db.Order("id desc").Limit(5).Find(&epochs)
+	if result.Error != nil {
+		log.Printf("~~~ FetchWithLimit() %s",result.Error)
 		return nil, result.Error
 	}
 	return epochs, nil

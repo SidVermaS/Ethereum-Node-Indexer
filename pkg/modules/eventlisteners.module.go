@@ -1,4 +1,4 @@
-package helpers
+package modules
 
 import (
 	"context"
@@ -47,8 +47,6 @@ func eventHandler(event *sseclient.Event) error {
 func StreamConsensysNode(consensysVendor *consensys.Consensys, topicsSlice []consensysconsts.ConsensysTopicsE) {
 
 	var topicsStringSlice []string = consensyshelpers.ConvertTopicsSliceToStringSlice(topicsSlice)
-	//	http://localhost:5051
-	fmt.Println("~~~ StreamConsensysNode()")
 	var topics string = strings.Join(topicsStringSlice, ",")
 	var u string = fmt.Sprintf("%s/eth/v1/events?topics=%s", consensysVendor.Vendor.BaseURL, topics)
 	eventSource := sseclient.New(u, "")
