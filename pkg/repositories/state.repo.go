@@ -32,3 +32,37 @@ func (stateRepo *StateRepo) Create(state *models.State) (uint, error) {
 	}
 	return state.ID, nil
 }
+
+func (stateRepo *StateRepo) FetchByID(id uint, limit int) (*models.State, error) {
+	var state *models.State
+	result := stateRepo.Db.Where("id = ?", id).Last(state).Limit(limit)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return state, nil
+}
+func (stateRepo *StateRepo) FetchByIDs(ids []uint) ([]*models.State, error) {
+	var states []*models.State
+	result := stateRepo.Db.Where("id IN ?", ids).Find(&states)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return states, nil
+}
+func (stateRepo *StateRepo) FetchWithLimit(limit int) ([]*models.State, error) {
+	var states []*models.State
+	result := stateRepo.Db.Last(states).Limit(limit)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return states, nil
+}
+
+func (stateRepo *StateRepo) FetchStatesAndEpochs(epochsIDs []uint, limit int) ([]*models.State, error) {
+	var states []*models.State
+	result := stateRepo.Db.InnerJoins("Epoch",).Where("eid in ?", epochsIDs).Limit(limit).Find(&states)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return states, nil
+}

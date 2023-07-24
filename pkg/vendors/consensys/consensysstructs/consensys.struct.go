@@ -8,15 +8,15 @@ type FinalizedCheckpoint struct {
 }
 
 type GetValidatorsFromStateResponse struct {
-	ExecutionOptimistic bool `json:"execution_optimistic"`
-	Finalized           bool `json:"finalized"`
+	ExecutionOptimistic bool            `json:"execution_optimistic"`
+	Finalized           bool            `json:"finalized"`
 	Data                []ValidatorData `json:"data"`
 }
 
 type ValidatorData struct {
-	Index   string `json:"index"`
-	Balance string `json:"balance"`
-	Status  string `json:"status"`
+	Index     string    `json:"index"`
+	Balance   string    `json:"balance"`
+	Status    string    `json:"status"`
 	Validator Validator `json:"validator"`
 }
 type Validator struct {
@@ -28,4 +28,15 @@ type Validator struct {
 	ActivationEpoch            string `json:"activation_epoch"`
 	ExitEpoch                  string `json:"exit_epoch"`
 	WithdrawableEpoch          string `json:"withdrawable_epoch"`
+}
+
+type GetCommitteesAtStateResponse struct {
+	ExecutionOptimistic bool       `json:"execution_optimistic"`
+	Finalized           bool       `json:"finalized"`
+	Data                []SlotData `json:"data"`
+}
+type SlotData struct {
+	Index      string   `json:"index"`
+	Slot       string   `json:"slot"`
+	Validators []string `json:"validators"`
 }

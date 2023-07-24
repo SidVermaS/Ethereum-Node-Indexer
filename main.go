@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/consts"
-	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/helpers"
+	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/modules"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -19,7 +19,7 @@ func GreetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	helpers.InitializeAll()
+	modules.InitializeAll()
 	app := fiber.New()
 
 	http.HandleFunc("/", GreetHandler)

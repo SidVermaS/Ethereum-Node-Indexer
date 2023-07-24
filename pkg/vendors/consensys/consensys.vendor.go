@@ -19,10 +19,21 @@ func (consensys *Consensys) GetValidatorsFromState(stateIdentifierOrHex string) 
 	_, response, _ := consensys.Vendor.CallAPI(&vstructs.APIRequest{Url: fmt.Sprintf("/eth/v1/beacon/states/%s/validators", stateIdentifierOrHex)})
 	var getValidatorsFromStateResponse *consensysstructs.GetValidatorsFromStateResponse
 	err := json.Unmarshal(response, &getValidatorsFromStateResponse)
-	
-	
+
 	if err != nil {
 		log.Printf("~~~ Error GetValidatorsFromState() %s\n", err)
 	}
 	return getValidatorsFromStateResponse
 }
+
+func (consensys *Consensys) GetCommitteesAtState(stateIdentifierOrHex string, epoch uint) *consensysstructs.GetCommitteesAtStateResponse {
+	_, response, _ := consensys.Vendor.CallAPI(&vstructs.APIRequest{Url: fmt.Sprintf("/eth/v1/beacon/states/%s/committees?epoch=%d", stateIdentifierOrHex, epoch)})
+	var getCommitteesAtStateResponse *consensysstructs.GetCommitteesAtStateResponse
+	err := json.Unmarshal(response, &getCommitteesAtStateResponse)
+
+	if err != nil {
+		log.Printf("~~~ Error GetCommitteesAtState() %s\n", err)
+	}
+	return getCommitteesAtStateResponse
+}
+
