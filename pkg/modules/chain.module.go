@@ -1,10 +1,8 @@
 package modules
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"sync"
 
@@ -285,7 +283,7 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	for committieesFromStateAndEpochDataArrayIndex, committieesFromStateAndEpochDataArrayItem := range CommittieesFromStateAndEpochDataArray {
 		for slotIndex, slotDataItem := range committieesFromStateAndEpochDataArrayItem.SlotData {
 			for _, validatorItem := range slotDataItem.Validators {
-				
+
 				committees = append(committees, &models.Committee{
 					Eid:     states[committieesFromStateAndEpochDataArrayIndex].Eid,
 					StateId: states[committieesFromStateAndEpochDataArrayIndex].ID,
