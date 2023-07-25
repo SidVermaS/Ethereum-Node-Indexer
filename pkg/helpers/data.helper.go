@@ -5,20 +5,32 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
-
-func ConvertStringToUInt64(data string) uint64 {
-	number, _ := strconv.ParseUint(data, 10, 64)
-	return number
+func ConvertStringToUInt(data string) (uint,error) {
+	number, err := strconv.Atoi(data)
+	if err != nil {
+		return 0, err
+	}
+	return uint(number), err 
 }
-func ConvertStringToInt(data string) int {
-	number, _ := strconv.Atoi(data)
-	return number
+func ConvertStringToUInt64(data string) (uint64,error) {
+	number, err := strconv.ParseUint(data, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return uint64(number), nil 
+}
+func ConvertStringToInt(data string) (int,error) {
+	number, err := strconv.Atoi(data)	
+	if err != nil {
+		return 0, err
+	}
+	return number, nil
 }
 func GetPaginationValues(ctx *fiber.Ctx) (int, int) {
 	pageQuery := ctx.Query("page")
 	limitQuery := ctx.Query("limit")
-	page := ConvertStringToInt(pageQuery)
-	limit := ConvertStringToInt(limitQuery)
+	page,_ := ConvertStringToInt(pageQuery)
+	limit,_ := ConvertStringToInt(limitQuery)
 	if page <= 0 {
 		page = 1
 	}	

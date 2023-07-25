@@ -7,6 +7,6 @@ import (
 
 func SetupIndexerRoutes(router fiber.Router) {
 	indexerRoutes := router.Group("/indexers")
-	indexerRoutes.Get("/", controllers.GetNetworksParticipationRate)
-	// indexerRoutes.Get("/:id", controllers.GetValidatorsParticipationRate)
+	indexerRoutes.Get("/network", controllers.GetNetworksParticipationRate)
+	indexerRoutes.Get("/validators/:id", controllers.GetValidatorParticipationRate)
 }
