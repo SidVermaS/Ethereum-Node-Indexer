@@ -42,3 +42,12 @@ func (validatorRepo *ValidatorRepo) FetchFromIndexes(indexes []uint64) ([]*model
 	}
 	return validators, nil
 }
+func (validatorRepo *ValidatorRepo) FetchPaginatedData(offset int, limit int) ([]*models.Validator, error) {
+	var validators []*models.Validator
+
+	result := validatorRepo.Db.Offset(offset).Limit(limit).Find(&validators)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return validators, nil
+}

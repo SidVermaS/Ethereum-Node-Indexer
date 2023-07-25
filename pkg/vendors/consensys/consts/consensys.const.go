@@ -28,3 +28,8 @@ const (
 	Finalized StateIdsE = "finalized"
 	Justified StateIdsE = "justified"
 )
+type ValidatorStatusE string
+const (
+	ActiveOngoing ValidatorStatusE = "active_ongoing" 
+	PendingInitialized ValidatorStatusE = "pending_initialized" 
+)

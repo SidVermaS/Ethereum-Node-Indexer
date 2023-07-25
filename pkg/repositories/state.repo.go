@@ -9,6 +9,10 @@ import (
 type StateRepo struct {
 	Db *gorm.DB
 }
+type StatesErrorChannelStruct struct {
+	States []*models.State
+	Err    error
+}
 
 func (stateRepo *StateRepo) CreateMany(states []*models.State) error {
 	for index, stateItem := range states {
@@ -49,6 +53,14 @@ func (stateRepo *StateRepo) FetchByIDs(ids []uint) ([]*models.State, error) {
 	}
 	return states, nil
 }
+func (stateRepo *StateRepo) FetchByEids(eids []uint) ([]*models.State, error) {
+	var states []*models.State
+	result := stateRepo.Db.Where("eid IN ?", eids).Find(&states)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return states, nil
+}
 func (stateRepo *StateRepo) FetchWithLimit(limit int) ([]*models.State, error) {
 	var states []*models.State
 	result := stateRepo.Db.Last(states).Limit(limit)
@@ -60,9 +72,18 @@ func (stateRepo *StateRepo) FetchWithLimit(limit int) ([]*models.State, error) {
 
 func (stateRepo *StateRepo) FetchStatesAndEpochs(epochsIDs []uint, limit int) ([]*models.State, error) {
 	var states []*models.State
-	result := stateRepo.Db.InnerJoins("Epoch",).Where("eid in ?", epochsIDs).Limit(limit).Find(&states)
+	result := stateRepo.Db.InnerJoins("Epoch").Where("eid in ?", epochsIDs).Limit(limit).Find(&states)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return states, nil
+}
+
+func (stateRepo *StateRepo) FetchByEidsFromChannel(eids []uint, statesErrorChannel chan *StatesErrorChannelStruct) {
+
+	states, err := stateRepo.FetchByEids(eids)
+	statesErrorChannel <- &StatesErrorChannelStruct{
+		States: states,
+		Err:    err,
+	}
 }

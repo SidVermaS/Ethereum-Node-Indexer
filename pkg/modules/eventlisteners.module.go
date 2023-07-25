@@ -49,6 +49,7 @@ func StreamConsensysNode(consensysVendor *consensys.Consensys, topicsSlice []con
 	var topicsStringSlice []string = consensyshelpers.ConvertTopicsSliceToStringSlice(topicsSlice)
 	var topics string = strings.Join(topicsStringSlice, ",")
 	var u string = fmt.Sprintf("%s/eth/v1/events?topics=%s", consensysVendor.Vendor.BaseURL, topics)
+
 	eventSource := sseclient.New(u, "")
 	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
 	// defer cancel()
