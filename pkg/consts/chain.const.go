@@ -2,5 +2,5 @@ package consts
 
 
 const (
-	EpochLimit uint = 5
+	EpochLimit int = 5
 )

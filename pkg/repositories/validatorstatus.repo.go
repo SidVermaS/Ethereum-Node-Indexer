@@ -32,9 +32,20 @@ func (validatorStatusRepo *ValidatorStatusRepo) Create(validatorStatus *models.V
 	}
 	return validatorStatus.ID, nil
 }
-func (validatorStatusRepo *ValidatorStatusRepo) FetchByEidsAndSlotsIds(eids []uint, slotsIds []uint) ([]*models.ValidatorStatus, error) {
+func (validatorStatusRepo *ValidatorStatusRepo) FetchAllValidatorsStatusByEidsAndSlotsIds(eids []uint, slotsIds []uint) ([]*models.ValidatorStatus, error) {
 	var validatorStatuses []*models.ValidatorStatus
 	result := validatorStatusRepo.Db.Select("slots.eid, slots.state_id, validator_statuses.eid, validator_statuses.state_id, validator_statuses.is_slashed, validator_statuses.status").Joins("INNER JOIN slots ON validator_statuses.eid=slots.eid AND validator_statuses.state_id=slots.state_id").Where("validator_statuses.eid IN (?) AND slots.id IN (?)", eids, slotsIds).Find(&validatorStatuses)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return validatorStatuses, nil
+}
+
+func (validatorStatusRepo *ValidatorStatusRepo) FetchSingleValidatorsStatusByEidsAndSlotsIds(validatorId uint,eids []uint, slotsIds []uint) ([]*models.ValidatorStatus, error) {
+	var validatorStatuses []*models.ValidatorStatus
+	result := validatorStatusRepo.Db.Select("slots.eid, slots.state_id, validator_statuses.eid, validator_statuses.state_id, validator_statuses.is_slashed, validator_statuses.status").Joins("INNER JOIN slots ON validator_statuses.eid=slots.eid AND validator_statuses.state_id=slots.state_id").Where("validator_statuses.eid IN (?) AND slots.id IN (?) AND validator_statuses.vid IN (?)", eids, slotsIds, validatorId).Find(&validatorStatuses)
 
 	if result.Error != nil {
 		return nil, result.Error

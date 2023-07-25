@@ -255,14 +255,15 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	var validatorsIndexesMap = map[uint64]struct{}{}
 	for _, committieesFromStateAndEpochDataArrayItem := range CommittieesFromStateAndEpochDataArray {
 		for _, slotDataItem := range committieesFromStateAndEpochDataArrayItem.SlotData {
-			index := helpers.ConvertStringToUInt64(slotDataItem.Index)
+			index,_ := helpers.ConvertStringToUInt64(slotDataItem.Index)
 			slotsToBeCreated = append(slotsToBeCreated, &models.Slot{
 				Index:   index,
 				Eid:     committieesFromStateAndEpochDataArrayItem.Eid,
 				StateId: committieesFromStateAndEpochDataArrayItem.StateId,
 			})
 			for _, validatorItem := range slotDataItem.Validators {
-				validatorsIndexesMap[helpers.ConvertStringToUInt64(validatorItem)] = struct{}{}
+				validatorsIndexKey,_:=helpers.ConvertStringToUInt64(validatorItem)
+				validatorsIndexesMap[validatorsIndexKey] = struct{}{}
 			}
 		}
 	}
