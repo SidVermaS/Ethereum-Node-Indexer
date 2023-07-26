@@ -5,7 +5,7 @@ import (
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/models"
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/repositories"
 )
-
+// Fetches the paginated validators
 func GetValidators(offset int, limit int) ([]*models.Validator, error) {
 	validatorRepo := &repositories.ValidatorRepo{
 		Db: configs.GetDBInstance(),

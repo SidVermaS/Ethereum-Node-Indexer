@@ -6,7 +6,7 @@ type Epoch struct {
 	Bid   uint  `json:"bid"`
 	Block Block `gorm:"foreignKey:Bid;not null"`
 }
-
+// It's an interface needed for overriding the table name by GoORM
 type Tabler interface {
 	TableName() string
 }

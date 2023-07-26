@@ -5,7 +5,7 @@ import (
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/models"
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/repositories"
 )
-
+// Fetches the lastest epoch entry
 func GetLastEpoch() (*models.Epoch, error) {
 	epochRepo := &repositories.EpochRepo{
 		Db: configs.GetDBInstance(),

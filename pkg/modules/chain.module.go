@@ -21,13 +21,15 @@ import (
 
 var waitGroup = &sync.WaitGroup{}
 
-// create a channel to communicate between goroutines (SaveBlocks(), SaveEpochs())
+// Creates a channel to communicate between goRoutines
+// These functions ran with "go" keyword will run them in GoRoutines (SaveBlocks(), SaveEpochs())
 var blocksEpochsChannel chan []*models.Block = make(chan []*models.Block)
 var epochsStatesChannel chan []*models.Epoch = make(chan []*models.Epoch)
 var statesAndValidatorsChannel chan []*models.State = make(chan []*models.State)
 var validatorToValidatorsStatusChannel chan *structs.ValidatorToValidatorsStatusChannelStruct = make(chan *structs.ValidatorToValidatorsStatusChannelStruct)
 var validatorsStatusAndSaveSlotsAndCommitteesChannel chan bool = make(chan bool)
 
+// Fetches all the validators based on the stateId
 func GetValidatorsFromState(stateDbId uint, epochDbId uint, stateIdentifierOrHex string, consensysInstance *consensys.Consensys, queueForValidatorToValidatorsStatusChannel chan *structs.ValidatorToValidatorsStatusChannelStruct) {
 	var validators []*models.Validator
 	var validatorStatuses []*models.ValidatorStatus
@@ -44,7 +46,7 @@ func GetValidatorsFromState(stateDbId uint, epochDbId uint, stateIdentifierOrHex
 	}
 	return
 }
-
+// Fetches Committies in a specific epoch 
 func GetCommittieesFromStateAndEpoch(stateId uint, stateIdentifierOrHex string, epochId uint, epochPeriod uint, consensysInstance *consensys.Consensys, queueForCommittieesFromStateAndEpochDataChannel chan *structs.CommittieesFromStateAndEpochData) {
 
 	var getCommitteesAtStateResponse *consensysstructs.GetCommitteesAtStateResponse = consensysInstance.GetCommitteesAtState(stateIdentifierOrHex, epochPeriod)

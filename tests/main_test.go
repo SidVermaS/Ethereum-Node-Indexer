@@ -28,10 +28,11 @@ type TestAPIRequest struct {
 	ExpectedResponseCode int
 	APIRequest           *APIRequest
 }
-
+// Declate the Fiber app.
 var App *fiber.App
 
 func Setup() {
+	// Load the .env file
 	godotenv.Load("../.env")
 	// Connect to the DB, cache, start node scheduler and start event listenter
 	modules.ActivateAll()
@@ -41,22 +42,20 @@ func Setup() {
 	App.Use(cors.New())
 	// Setting up the API routes
 	routes.SetupRoutes(App)
-
 }
+// Makes a network call to an API whose URL is passed.
 func makeRequest(method, url string, body interface{}) (*http.Response, error) {
-	// Define Fiber app.
+	// Parsing the payload to bytes 
 	requestBody, _ := json.Marshal(body)
+
 	request, _ := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
-	// Perform the request plain with the app, the second argument is a request latency
+	// Perform the request plain with the app, the second argument is a request latency. (set to -1 for no latency)
 	response, err := App.Test(request, -1)
 	return response, err
 }
 
 func checkResponseCode(t *testing.T, expectedResponseCode, actualResponseCode int, url string) {
-	// if expectedResponseCode != actualResponseCode {
-	// 	t.Errorf("Expected response code %d. Got %d\n", expectedResponseCode, actualResponseCode)
-	// }
-	// Verify, if the status code is as expected
+	// It Verifies, whether the status code is as expected or not
 	assert.Equalf(t, expectedResponseCode, actualResponseCode, url)
 }
 
@@ -71,8 +70,9 @@ func testAPI(testAPIRequest *TestAPIRequest) {
 		// Add a ? before the query parameters
 		query = "?" + query
 	}
-	// URL
+	// Creating the URL with parameters and a query
 	u := fmt.Sprintf("%s%s%s", testAPIRequest.APIRequest.Url, testAPIRequest.APIRequest.Param, query)
+	// Call the API on the server
 	response, err := makeRequest(testAPIRequest.APIRequest.Method, u, testAPIRequest.APIRequest.Body)
 	if err != nil {
 		testAPIRequest.T.Errorf("~~~ Request Error %v", err)
@@ -81,6 +81,7 @@ func testAPI(testAPIRequest *TestAPIRequest) {
 }
 
 func TestNetworksParticipationRate(t *testing.T) {
+	// Connect to the DB, cache, start node scheduler and start event listenter
 	Setup()
 
 	var apiRequest = &APIRequest{
@@ -96,6 +97,7 @@ func TestNetworksParticipationRate(t *testing.T) {
 }
 
 func TestFetchingOfValidators(t *testing.T) {
+	// Connect to the DB, cache, start node scheduler and start event listenter
 	Setup()
 	// Define a structure for specifying input and output data of a single test case
 	type FetchingOfValidators struct {
@@ -135,6 +137,7 @@ func TestFetchingOfValidators(t *testing.T) {
 }
 
 func TestValidatorParticipationRate(t *testing.T) {
+	// Connect to the DB, cache, start node scheduler and start event listenter
 	Setup()
 	// Define a structure for specifying input and output data of a single test case
 	type FetchingValidatorParticipationRate struct {

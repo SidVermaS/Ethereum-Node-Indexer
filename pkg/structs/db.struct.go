@@ -2,6 +2,7 @@ package structs
 
 import "gorm.io/gorm"
 
+// struct for the configuration of the database 
 type DbConfig struct {
 	Host     string
 	User     string

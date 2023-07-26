@@ -3,6 +3,8 @@ package consensysconsts
 type ConsensysTopicsE string
 type StateIdsE string
 
+// These consts are the parameter values used in the Consensys APIs
+
 const (
 	Head                   ConsensysTopicsE = "head"
 	Finalized_checkpoint   ConsensysTopicsE = "finalized_checkpoint"

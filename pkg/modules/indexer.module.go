@@ -9,6 +9,7 @@ import (
 	consensysconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consts"
 )
 
+// Fetches the IDs of epochs and the slots
 func FetchEpochsAndSlots(limit int) ([]uint, []uint) {
 	epochRepo := &repositories.EpochRepo{
 		Db: configs.GetDBInstance(),
@@ -35,8 +36,10 @@ func FetchEpochsAndSlots(limit int) ([]uint, []uint) {
 	}
 	return eids, slotsIds
 }
+
+// It calculates the network's participation rate
 func GetNetworksParticipationRate() (float64, error) {
-	
+
 	eids, slotsIds := FetchEpochsAndSlots(consts.EpochLimit)
 
 	validatorStatusRepo := &repositories.ValidatorStatusRepo{
@@ -60,6 +63,8 @@ func GetNetworksParticipationRate() (float64, error) {
 	})
 	return networksParticipationRate, nil
 }
+
+// It calculates the validators's participation rate
 func GetValidatorsParticipationRate(id uint) (float64, error) {
 	epochRepo := &repositories.EpochRepo{
 		Db: configs.GetDBInstance(),
