@@ -7,6 +7,6 @@ const (
 )
 
 var CronSchedulerExpressions = map[CronTypesE]string{
-	// 3 minutes interval
-	CheckNewBlockAddedScheduler: "*/3 * * * *",
+	// 13 minutes interval
+	CheckNewBlockAddedScheduler: "*/13 * * * *",
 }

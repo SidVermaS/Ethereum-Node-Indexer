@@ -1,0 +1,14 @@
+{
+    "_id": "e2e7023e-c891-4217-bbe2-3e2e49ba0aa6",
+    "name": "EthereumNodeIndexer",
+    "default": true,
+    "sortNum": 10000,
+    "created": "2023-07-25T15:08:54.069Z",
+    "modified": "2023-07-25T15:08:54.069Z",
+    "data": [
+        {
+            "name": "host",
+            "value": "http://127.0.0.1:8080"
+        }
+    ]
+}

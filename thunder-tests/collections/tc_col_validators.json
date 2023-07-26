@@ -1,0 +1,34 @@
+{
+    "_id": "dfa0dbe6-6016-400a-93e9-055248d1fa3d",
+    "colName": "Validators",
+    "created": "2023-07-25T15:12:19.478Z",
+    "sortNum": 20000,
+    "folders": [],
+    "requests": [
+        {
+            "_id": "6777082b-ec4e-4d44-b858-94c49a9a13c6",
+            "colId": "dfa0dbe6-6016-400a-93e9-055248d1fa3d",
+            "containerId": "",
+            "name": "GetValidators",
+            "url": "{{host}}/api/v1/validators?page=1&limit=10",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2023-07-25T15:12:35.594Z",
+            "modified": "2023-07-25T15:12:42.959Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "page",
+                    "value": "1",
+                    "isPath": false
+                },
+                {
+                    "name": "limit",
+                    "value": "10",
+                    "isPath": false
+                }
+            ],
+            "tests": []
+        }
+    ]
+}

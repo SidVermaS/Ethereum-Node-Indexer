@@ -11,6 +11,13 @@ const (
 	POSTGRES_PORT     EnvE = "POSTGRES_PORT"
 	POSTGRES_SSL_MODE EnvE = "POSTGRES_SSL_MODE"	
 )
+//	Constants to access environment variables needed to access Redis cache
+const (	
+	REDIS_HOST EnvE="REDIS_HOST"
+	REDIS_PORT EnvE="REDIS_PORT"
+	REDIS_PASSWORD EnvE="REDIS_PASSWORD"
+)
+
 
 const (	
 	CONSENSYS_CLIENT_HOST EnvE="CONSENSYS_CLIENT_HOST"

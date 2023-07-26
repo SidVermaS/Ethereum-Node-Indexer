@@ -3,9 +3,11 @@ package configs
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/consts"
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/migrations"
@@ -25,11 +27,11 @@ func CloseDBConnection() {
 }
 
 // Connecting to the Database
-func CreateConnection(config *structs.DbConfig, repository *structs.DBRepository) (*gorm.DB, error) {
+func CreateDBConnection(config *structs.DbConfig, repository *structs.DBRepository) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", config.Host, config.User, config.Password, config.DBName, config.Port, config.SSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		// Logger: logger.Default.LogMode(logger.Silent)
+		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		return db, err
@@ -38,7 +40,8 @@ func CreateConnection(config *structs.DbConfig, repository *structs.DBRepository
 	return db, nil
 }
 
-func InitializeDB() {
+func InitializeDB(wg *sync.WaitGroup) {
+	defer wg.Done()
 	dbConfig := &structs.DbConfig{
 		Host:     os.Getenv(string(consts.POSTGRES_HOST)),
 		User:     os.Getenv(string(consts.POSTGRES_USER)),
@@ -48,8 +51,14 @@ func InitializeDB() {
 		SSLMode:  os.Getenv(string(consts.POSTGRES_SSL_MODE)),
 	}
 	// Passed the configuration and the DBRepository to initialize the gorm.DB instance
-	CreateConnection(dbConfig, Repository)
+	CreateDBConnection(dbConfig, Repository)
 
 	// It needs to be executed only for the first time
 	migrations.InitialMigration(Repository.DB)
+
+}
+
+// Closing all connections, event listeners, etc
+func Deactivate() {
+	CloseDBConnection()
 }

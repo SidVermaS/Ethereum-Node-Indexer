@@ -8,9 +8,19 @@ services:
     ports:
       - 54321:5432
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - eni_data:/var/lib/postgresql/data
+  cache:
+    image: "redis:7-alpine3.18"
+    container_name: eni_cache
+    restart: on-failure
+    env_file: .env
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - 6379:6379
+    volumes: 
+      - eni_data:/data
   # server:
-  #     container_name: ec_server
+  #     container_name: eni_server
   #     build:
   #       context: .
   #       dockerfile: Dockerfile
@@ -20,8 +30,9 @@ services:
   #     restart: on-failure
   #     depends_on:
   #       - database
+  #       - cache
   #     networks:
-  #       - ecapp
+  #       - eniapp
   besu_node:
     image: hyperledger/besu:latest
     command:
@@ -73,8 +84,8 @@ services:
       - "5051:5051"
 
 volumes:
-  db_data:
-
+  eni_data:
+  
 # Networks to be created to facilitate communication between containers
 networks:
   ecapp:

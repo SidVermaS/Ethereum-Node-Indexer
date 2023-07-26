@@ -1,0 +1,37 @@
+{
+    "_id": "e30b0f4a-fd3d-4ad1-b0d7-b69291208f95",
+    "colName": "Indexers",
+    "created": "2023-07-25T15:09:33.850Z",
+    "sortNum": 10000,
+    "folders": [],
+    "requests": [
+        {
+            "_id": "8368bf53-035e-4c64-bab7-0b0414842314",
+            "colId": "e30b0f4a-fd3d-4ad1-b0d7-b69291208f95",
+            "containerId": "",
+            "name": "NetworksParticipationRate",
+            "url": "{{host}}/api/v1/indexers/network",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2023-07-25T15:09:41.053Z",
+            "modified": "2023-07-25T15:10:08.586Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "1d53c9c3-0794-423e-8f76-b9dfc534d799",
+            "colId": "e30b0f4a-fd3d-4ad1-b0d7-b69291208f95",
+            "containerId": "",
+            "name": "ValidatorParticipationRate",
+            "url": "{{host}}/api/v1/indexers/validators/1",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2023-07-25T15:10:27.328Z",
+            "modified": "2023-07-25T15:10:35.703Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        }
+    ]
+}
