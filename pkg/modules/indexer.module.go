@@ -36,6 +36,7 @@ func FetchEpochsAndSlots(limit int) ([]uint, []uint) {
 	return eids, slotsIds
 }
 func GetNetworksParticipationRate() (float64, error) {
+	
 	eids, slotsIds := FetchEpochsAndSlots(consts.EpochLimit)
 
 	validatorStatusRepo := &repositories.ValidatorStatusRepo{

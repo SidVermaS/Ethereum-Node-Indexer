@@ -11,6 +11,7 @@ func GetValidators(offset int, limit int) ([]*models.Validator, error) {
 		Db: configs.GetDBInstance(),
 	}
 	validators, err := validatorRepo.FetchPaginatedData(offset, limit)
+
 	if err != nil {
 		return nil, err
 	}

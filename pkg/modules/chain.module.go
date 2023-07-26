@@ -52,6 +52,7 @@ func GetCommittieesFromStateAndEpoch(stateId uint, stateIdentifierOrHex string, 
 	queueForCommittieesFromStateAndEpochDataChannel <- &structs.CommittieesFromStateAndEpochData{Eid: epochId, StateId: stateId, SlotData: getCommitteesAtStateResponse.Data}
 	return
 }
+// Entry point for saving the data needed for indexing
 func ProcessToSaveDataForIndexing(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint) {
 	waitGroup.Add(6)
 	go SaveBlocks(finalizedCheckpoints, waitGroup)
@@ -62,7 +63,7 @@ func ProcessToSaveDataForIndexing(finalizedCheckpoints []*consensysstructs.Final
 	go SaveSlotsAndCommittees(waitGroup)
 	waitGroup.Wait()
 }
-
+// Saves the blocks that came during their respective epochs
 func SaveBlocks(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
 	var blocks []*models.Block
@@ -79,6 +80,7 @@ func SaveBlocks(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 		panic(err)
 	}
 }
+// The epochs are mapped with blocks and saved
 func SaveEpochs(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, processWaitGroup *sync.WaitGroup) {
 
 	defer processWaitGroup.Done()
@@ -104,6 +106,7 @@ func SaveEpochs(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 	epochsStatesChannel <- epochs
 }
 
+// The states are mapped with the blocks and epochs
 func SaveStates(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
 	epochs := <-epochsStatesChannel
@@ -125,6 +128,7 @@ func SaveStates(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 	}
 	statesAndValidatorsChannel <- states
 }
+// The unique validators are saved
 func SaveValidators(processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
 	states := <-statesAndValidatorsChannel
@@ -164,7 +168,7 @@ func SaveValidators(processWaitGroup *sync.WaitGroup) {
 	defer close(queueForValidatorToValidatorsStatusChannel)
 	validatorToValidatorsStatusChannel <- &structs.ValidatorToValidatorsStatusChannelStruct{ValidatorStatuses: validatorStatusToBeCreated, Validators: validatorsToBeCreated}
 }
-
+// The status of the validator in a slot is saved. It also saves whether the validator was saved or not.
 func SaveValidatorsStatus(processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
 	validatorToValidatorsStatusChannelData := <-validatorToValidatorsStatusChannel
@@ -207,7 +211,7 @@ func SaveValidatorsStatus(processWaitGroup *sync.WaitGroup) {
 	}
 	validatorsStatusAndSaveSlotsAndCommitteesChannel <- true
 }
-
+// Mapping the committies with the validators and saving them
 func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	<-validatorsStatusAndSaveSlotsAndCommitteesChannel
 	defer close(validatorsStatusAndSaveSlotsAndCommitteesChannel)
@@ -299,7 +303,7 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	}
 	committeeRepo.CreateMany(committees)
 }
-
+// Slots are insereted in to the DB
 func CreateManySlots(slotsToBeCreated []*models.Slot, createManySlotsChannel chan []*models.Slot) {
 	slotRepo := &repositories.SlotRepo{
 		Db: configs.GetDBInstance(),
@@ -307,6 +311,8 @@ func CreateManySlots(slotsToBeCreated []*models.Slot, createManySlotsChannel cha
 	slotRepo.CreateMany(slotsToBeCreated)
 	createManySlotsChannel <- slotsToBeCreated
 }
+
+// Fetch the validators from their indexes
 func FetchManyValidators(indexes []uint64, fetchManyValidatorsChannel chan []*models.Validator) {
 	validatorRepo := &repositories.ValidatorRepo{
 		Db: configs.GetDBInstance(),

@@ -88,5 +88,5 @@ volumes:
   
 # Networks to be created to facilitate communication between containers
 networks:
-  ecapp:
+  eniapp:
     driver: bridge
