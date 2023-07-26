@@ -9,7 +9,7 @@ import (
 type ValidatorRepo struct {
 	Db *gorm.DB
 }
-
+// Inserts multiple validators in batches
 func (validatorRepo *ValidatorRepo) CreateMany(validators []*models.Validator) error {
 	for index, validatorItem := range validators {
 		validators[index] = &models.Validator{Index: validatorItem.Index, PublicKey: validatorItem.PublicKey}
@@ -24,7 +24,7 @@ func (validatorRepo *ValidatorRepo) CreateMany(validators []*models.Validator) e
 	}
 	return nil
 }
-
+// Inserts an individual validator
 func (validatorRepo *ValidatorRepo) Create(validator *models.Validator) (uint, error) {
 	validator = &models.Validator{Index: validator.Index, PublicKey: validator.PublicKey}
 	result := validatorRepo.Db.Create(validator)
@@ -34,6 +34,7 @@ func (validatorRepo *ValidatorRepo) Create(validator *models.Validator) (uint, e
 	return validator.ID, nil
 }
 
+// Fetches validators based on their indexes
 func (validatorRepo *ValidatorRepo) FetchFromIndexes(indexes []uint64) ([]*models.Validator, error) {
 	var validators []*models.Validator
 	result := validatorRepo.Db.Where("index IN ?", indexes).Find(&validators)
@@ -42,6 +43,8 @@ func (validatorRepo *ValidatorRepo) FetchFromIndexes(indexes []uint64) ([]*model
 	}
 	return validators, nil
 }
+
+// Fetches paginated validators
 func (validatorRepo *ValidatorRepo) FetchPaginatedData(offset int, limit int) ([]*models.Validator, error) {
 	var validators []*models.Validator
 

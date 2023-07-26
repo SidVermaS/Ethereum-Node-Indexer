@@ -10,6 +10,7 @@ type BlockRepo struct {
 	Db *gorm.DB
 }
 
+// Inserts multiple blocks in batches
 func (blockRepo *BlockRepo) CreateMany(blocks []*models.Block) error {
 	for index, blockItem := range blocks {
 		blocks[index] = &models.Block{Root: blockItem.Root}
@@ -22,7 +23,7 @@ func (blockRepo *BlockRepo) CreateMany(blocks []*models.Block) error {
 	}
 	return nil
 }
-
+// Inserts an individual block
 func (blockRepo *BlockRepo) Create(block *models.Block) (uint, error) {
 	block = &models.Block{Root: block.Root}
 	result := blockRepo.Db.Create(block)

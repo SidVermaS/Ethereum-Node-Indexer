@@ -11,7 +11,7 @@ import (
 	vconsts "github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendorpkg/consts"
 	"golang.org/x/exp/slices"
 )
-
+// Configuration for the Vendor (third party APIs)
 type Vendor struct {
 	BaseURL      string
 	Username     string
@@ -27,6 +27,7 @@ type APIRequest struct {
 	Url    string
 }
 
+// Common function the call third party APIs
 func (vendor *Vendor) CallAPI(apiRequest *APIRequest) (int, []byte, error) {
 	// Converting map[string]string to a query parameter format
 	query := apiRequest.Query.Encode()

@@ -4,12 +4,11 @@ import (
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/models"
 	"github.com/SidVermaS/Ethereum-Node-Indexer/pkg/vendors/consensys/consensysstructs"
 )
-
+// Stucts used by the channels for communication between 2 goRoutines
 type ValidatorsStatusAndSaveSlotsAndCommitteesChannelStruct struct {
 	Eid        uint
 	StateId uint
 }
-
 
 type ValidatorToValidatorsStatusChannelStruct struct {
 	Validators        []*models.Validator

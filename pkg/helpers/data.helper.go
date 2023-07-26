@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,8 @@ func ConvertStringToUInt(data string) (uint, error) {
 	number, err := strconv.Atoi(data)
 	if err != nil {
 		return 0, err
+	} else if number < 0 {
+		return 0, errors.New("Number should be equal to or greater than 0")
 	}
 	return uint(number), err
 }

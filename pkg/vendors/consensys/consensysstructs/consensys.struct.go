@@ -1,5 +1,6 @@
 package consensysstructs
 
+// Structs return in the responses of the Consensys APIs
 type FinalizedCheckpoint struct {
 	Block               string `json:"block"`
 	State               string `json:"state"`

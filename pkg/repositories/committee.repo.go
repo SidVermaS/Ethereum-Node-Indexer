@@ -9,7 +9,7 @@ import (
 type CommitteeRepo struct {
 	Db *gorm.DB
 }
-
+// Inserts multiple committees in batches
 func (committeeRepo *CommitteeRepo) CreateMany(committees []*models.Committee) error {
 	for index, committeeItem := range committees {
 		committees[index] = &models.Committee{Eid: committeeItem.Eid,StateId: committeeItem.StateId, SlotId:  committeeItem.SlotId, Vid: committeeItem.Vid}
@@ -22,7 +22,7 @@ func (committeeRepo *CommitteeRepo) CreateMany(committees []*models.Committee) e
 	}
 	return nil
 }
-
+// Inserts an individual committee
 func (committeeRepo *CommitteeRepo) Create(committee *models.Committee) (uint, error) {
 	committee = &models.Committee{Eid: committee.Eid, SlotId: committee.SlotId, Vid: committee.Vid}
 	result := committeeRepo.Db.Create(committee)

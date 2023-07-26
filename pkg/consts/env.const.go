@@ -2,7 +2,9 @@ package consts
 
 type EnvE string
 
-const (API_PORT EnvE ="API_PORT")
+const (
+	API_HOST EnvE ="API_HOST"
+	API_PORT EnvE ="API_PORT")
 const (
 	POSTGRES_USER     EnvE = "POSTGRES_USER"
 	POSTGRES_PASSWORD EnvE = "POSTGRES_PASSWORD"

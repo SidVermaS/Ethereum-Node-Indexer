@@ -11,7 +11,7 @@ import (
 type EpochRepo struct {
 	Db *gorm.DB
 }
-
+// Inserts multiple epochs in batches
 func (epochRepo *EpochRepo) CreateMany(epochs []*models.Epoch) error {
 	for index, epochItem := range epochs {
 		epochs[index] = &models.Epoch{Bid: epochItem.Bid, Period: epochItem.Period}
@@ -24,7 +24,7 @@ func (epochRepo *EpochRepo) CreateMany(epochs []*models.Epoch) error {
 	}
 	return nil
 }
-
+// Inserts an individual epoch
 func (epochRepo *EpochRepo) Create(epoch *models.Epoch) (uint, error) {
 	epoch = &models.Epoch{Bid: epoch.Bid, Period: epoch.Period}
 	result := epochRepo.Db.Create(epoch)
@@ -33,7 +33,7 @@ func (epochRepo *EpochRepo) Create(epoch *models.Epoch) (uint, error) {
 	}
 	return epoch.ID, nil
 }
-
+// Fetches epochs based on an array of IDs
 func (epochRepo *EpochRepo) FetchByIDs(ids []uint) ([]*models.Epoch, error) {
 	var epochs []*models.Epoch
 	result := epochRepo.Db.Where("id IN ?", ids).Find(&epochs)
@@ -42,7 +42,7 @@ func (epochRepo *EpochRepo) FetchByIDs(ids []uint) ([]*models.Epoch, error) {
 	}
 	return epochs, nil
 }
-
+// Fetches the latest epochs according to the limit in the parameter
 func (epochRepo *EpochRepo) FetchWithLimit(limit int) ([]*models.Epoch, error) {
 	var epochs []*models.Epoch
 	result := epochRepo.Db.Order("id desc").Limit(5).Find(&epochs)
