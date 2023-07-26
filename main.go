@@ -13,9 +13,11 @@ import (
 
 func main() {
 	modules.InitializeAll()
+
 	// Create an instance
 	app := fiber.New()
 	routes.SetupRoutes(app)
+	
 	PORT := fmt.Sprintf("%s", os.Getenv(string(consts.API_PORT)))
 
 	log.Printf("Server is running on PORT: %s...\n", PORT)

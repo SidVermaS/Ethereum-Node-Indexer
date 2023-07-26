@@ -25,6 +25,10 @@ var EpochsCount uint = 0
 var AreEpochsSaved bool = false
 var FinalizedCheckpoints []*consensysstructs.FinalizedCheckpoint
 
+func ResetEpochsMetaData()	{
+	EpochsCount=0
+	AreEpochsSaved=false
+}
 func eventHandler(event *sseclient.Event) error {
 	if event.Event == string(consensysconsts.Finalized_checkpoint) {
 		if EpochsCount < 5 {

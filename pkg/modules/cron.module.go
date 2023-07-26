@@ -1,4 +1,4 @@
-package helpers
+package modules
 
 import (
 	"time"
@@ -8,9 +8,9 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
-func InitializeCron(cronInstance *structs.Cron) {
-	cronInstance = &structs.Cron{}
+var CronInstance = &structs.Cron{}
 
+func InitializeCron(cronInstance *structs.Cron) {
 	cronInstance.CheckNewBlockAddedScheduler = gocron.NewScheduler(time.UTC)
 	cronInstance.StartScheduler(consts.CheckNewBlockAddedScheduler)
 }
