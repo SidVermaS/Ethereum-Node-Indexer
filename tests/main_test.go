@@ -59,6 +59,7 @@ func checkResponseCode(t *testing.T, expectedResponseCode, actualResponseCode in
 	assert.Equalf(t, expectedResponseCode, actualResponseCode, url)
 }
 
+// Common function to create URL and check the expected response code
 func testAPI(testAPIRequest *TestAPIRequest) {
 	// Converting map[string]string to a query parameter format
 	query := testAPIRequest.APIRequest.Query.Encode()

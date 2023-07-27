@@ -6,12 +6,12 @@ const (
 	API_HOST EnvE ="API_HOST"
 	API_PORT EnvE ="API_PORT")
 const (
-	POSTGRES_USER     EnvE = "POSTGRES_USER"
-	POSTGRES_PASSWORD EnvE = "POSTGRES_PASSWORD"
-	POSTGRES_DB       EnvE = "POSTGRES_DB"
-	POSTGRES_HOST     EnvE = "POSTGRES_HOST"
-	POSTGRES_PORT     EnvE = "POSTGRES_PORT"
-	POSTGRES_SSL_MODE EnvE = "POSTGRES_SSL_MODE"	
+	PG_USER     EnvE = "PG_USER"
+	PG_PASSWORD EnvE = "PG_PASSWORD"
+	PG_DB       EnvE = "PG_DB"
+	PG_HOST     EnvE = "PG_HOST"
+	PG_PORT     EnvE = "PG_PORT"
+	PG_SSL_MODE EnvE = "PG_SSL_MODE"	
 )
 //	Constants to access environment variables needed to access Redis cache
 const (	
