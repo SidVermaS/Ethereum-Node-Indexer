@@ -1,3 +1,4 @@
+# This script is for the live reloading of the Go apps
 root = "."
 testdata_dir = "testdata"
 tmp_dir = "tmp"
@@ -12,7 +13,8 @@ tmp_dir = "tmp"
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
   follow_symlink = false
-  full_bin = ""
+  full_bin = ""  
+  exclude_dir = ["tmp","besu","teku"]
   include_dir = []
   include_ext = ["go", "tpl", "tmpl", "html"]
   include_file = []
