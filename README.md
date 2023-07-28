@@ -1,5 +1,5 @@
 # Ethereum-Node-Indexer
-This application is an indexer for Ethereum's Consensus Layer (Beacon Chain). We can fetch the network's participation rate and an individual validator's participation rate.
+This application is an indexer for Ethereum's Consensus Layer (Beacon Chain). We can fetch the network's participation rate, an individual validator's participation rate and fetch epochs, validators, validators' status, slots, committees, blocks and states.
 
 ## Clone the project
 ```
