@@ -24,32 +24,41 @@ Once the docker image is completely deployed then you can start exploring the AP
 1. Select the extensions icon on the left side bar of vsCode, search "*thunder client*" and install it.
 
 ![thunderclient1](./meta/screenshots/thunderclient1.png)
+
 2. A thunder client icon will be visible on the left side bar. You can select it.
 
 ![thunderclient2](./meta/screenshots/thunderclient2.png)
+
 3. Select the options icon on top right side of the thunder client side bar. Select **Extension Settings** from the list of options.
 
 ![thunderclient3](./meta/screenshots/thunderclient3.png)
+
 4. Check the checkbox for *Thunder*-client: **Save To Workspace**.
 
 ![thunderclient4](./meta/screenshots/thunderclient4.png)
+
 5. Ensure that the selected current environment is EthereumNodeIndexer environment. 
 
 ![thunderclient5](./meta/screenshots/thunderclient5.png)
+
 6. You can open the collections and start testing the APIs.
+
 ![thunderclient6](./meta/screenshots/thunderclient6.png)
 
 ## Testing
 1. Open Docker desktop application and select the **Containers** option on the left sidebar.
+
 ![gotest1](./meta/screenshots/gotest1.png)
 
 2. Select the command line icon of the container with the name: **eni_server**.
+
 ![gotest2](./meta/screenshots/gotest2.png)
 
 3. Execute the following command:
 ```cmd
 go test tests/main.go -v
 ```
+
 ![gotest3](./meta/screenshots/gotest3.png)
 
 ## Technical Justification
