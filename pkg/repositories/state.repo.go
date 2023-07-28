@@ -13,10 +13,11 @@ type StatesErrorChannelStruct struct {
 	States []*models.State
 	Err    error
 }
+
 // Inserts multiple states in batches
 func (stateRepo *StateRepo) CreateMany(states []*models.State) error {
 	for index, stateItem := range states {
-		states[index] = &models.State{Eid: stateItem.Eid, Bid: stateItem.Bid, StateStored: stateItem.StateStored}
+		states[index] = &models.State{EpochId: stateItem.EpochId, BlockId: stateItem.BlockId, StateStored: stateItem.StateStored}
 	}
 	result := stateRepo.Db.Clauses(clause.OnConflict{
 		DoNothing: true,
@@ -27,9 +28,10 @@ func (stateRepo *StateRepo) CreateMany(states []*models.State) error {
 	}
 	return nil
 }
+
 // Inserts an individual state
 func (stateRepo *StateRepo) Create(state *models.State) (uint, error) {
-	state = &models.State{Eid: state.Eid, Bid: state.Bid, StateStored: state.StateStored}
+	state = &models.State{EpochId: state.EpochId, BlockId: state.BlockId, StateStored: state.StateStored}
 	result := stateRepo.Db.Create(state)
 	if result.Error != nil {
 		return 0, result.Error
@@ -59,7 +61,7 @@ func (stateRepo *StateRepo) FetchByIDs(ids []uint) ([]*models.State, error) {
 // Fetches states based on an array of epoch IDs
 func (stateRepo *StateRepo) FetchByEids(eids []uint) ([]*models.State, error) {
 	var states []*models.State
-	result := stateRepo.Db.Where("eid IN ?", eids).Find(&states)
+	result := stateRepo.Db.Where("epoch_id IN ?", eids).Find(&states)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -73,10 +75,11 @@ func (stateRepo *StateRepo) FetchWithLimit(limit int) ([]*models.State, error) {
 	}
 	return states, nil
 }
+
 // Fetches States and their Epochs via. an inner join
 func (stateRepo *StateRepo) FetchStatesAndEpochs(epochsIDs []uint, limit int) ([]*models.State, error) {
 	var states []*models.State
-	result := stateRepo.Db.InnerJoins("Epoch").Where("eid in ?", epochsIDs).Limit(limit).Find(&states)
+	result := stateRepo.Db.InnerJoins("Epoch").Where("epoch_id in ?", epochsIDs).Limit(limit).Find(&states)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -91,4 +94,15 @@ func (stateRepo *StateRepo) FetchByEidsFromChannel(eids []uint, statesErrorChann
 		States: states,
 		Err:    err,
 	}
+}
+
+// Fetches filtered paginated states
+func (stateRepo *StateRepo) FetchFilteredPaginatedData(filter *models.State, offset int, limit int) ([]*models.State, error) {
+	var states []*models.State
+
+	result := stateRepo.Db.Table("states st").InnerJoins("Block").InnerJoins("Epoch").Select("st.id","state_stored").Where(filter).Offset(offset).Limit(limit).Find(&states)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return states, nil
 }

@@ -30,15 +30,16 @@ var validatorToValidatorsStatusChannel chan *structs.ValidatorToValidatorsStatus
 var validatorsStatusAndSaveSlotsAndCommitteesChannel chan bool = make(chan bool)
 
 // Fetches all the validators based on the stateId
-func GetValidatorsFromState(stateDbId uint, epochDbId uint, stateIdentifierOrHex string, consensysInstance *consensys.Consensys, queueForValidatorToValidatorsStatusChannel chan *structs.ValidatorToValidatorsStatusChannelStruct) {
+func GetValidatorsFromState(stateDbId *uint, epochDbId *uint, blockDbId *uint, stateIdentifierOrHex string, consensysInstance *consensys.Consensys, queueForValidatorToValidatorsStatusChannel chan *structs.ValidatorToValidatorsStatusChannelStruct) {
 	var validators []*models.Validator
 	var validatorStatuses []*models.ValidatorStatus
 	var getValidatorsFromStateResponse *consensysstructs.GetValidatorsFromStateResponse = consensysInstance.GetValidatorsFromState(stateIdentifierOrHex)
 
 	for _, validatorItem := range getValidatorsFromStateResponse.Data {
+
 		validatorItemIndex, _ := strconv.ParseUint(validatorItem.Index, 10, 64)
 		validators = append(validators, &models.Validator{PublicKey: validatorItem.Validator.Pubkey, Index: validatorItemIndex})
-		validatorStatuses = append(validatorStatuses, &models.ValidatorStatus{IsSlashed: validatorItem.Validator.Slashed, Status: validatorItem.Status, Eid: epochDbId, StateId: stateDbId})
+		validatorStatuses = append(validatorStatuses, &models.ValidatorStatus{IsSlashed: validatorItem.Validator.Slashed, Status: validatorItem.Status, EpochId: epochDbId, StateId:  stateDbId, BlockId:  blockDbId})
 	}
 	queueForValidatorToValidatorsStatusChannel <- &structs.ValidatorToValidatorsStatusChannelStruct{
 		Validators:        validators,
@@ -46,14 +47,16 @@ func GetValidatorsFromState(stateDbId uint, epochDbId uint, stateIdentifierOrHex
 	}
 	return
 }
-// Fetches Committies in a specific epoch 
-func GetCommittieesFromStateAndEpoch(stateId uint, stateIdentifierOrHex string, epochId uint, epochPeriod uint, consensysInstance *consensys.Consensys, queueForCommittieesFromStateAndEpochDataChannel chan *structs.CommittieesFromStateAndEpochData) {
+
+// Fetches Committies in a specific epoch
+func GetCommittieesFromStateAndEpoch(stateId *uint, stateIdentifierOrHex string, epochId *uint, epochPeriod uint, blockId *uint, consensysInstance *consensys.Consensys, queueForCommittieesFromStateAndEpochDataChannel chan *structs.CommittieesFromStateAndEpochData) {
 
 	var getCommitteesAtStateResponse *consensysstructs.GetCommitteesAtStateResponse = consensysInstance.GetCommitteesAtState(stateIdentifierOrHex, epochPeriod)
 
-	queueForCommittieesFromStateAndEpochDataChannel <- &structs.CommittieesFromStateAndEpochData{Eid: epochId, StateId: stateId, SlotData: getCommitteesAtStateResponse.Data}
+	queueForCommittieesFromStateAndEpochDataChannel <- &structs.CommittieesFromStateAndEpochData{EpochId: epochId, StateId: stateId, BlockId: blockId, SlotData: getCommitteesAtStateResponse.Data}
 	return
 }
+
 // Entry point for saving the data needed for indexing
 func ProcessToSaveDataForIndexing(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint) {
 	waitGroup.Add(6)
@@ -65,6 +68,7 @@ func ProcessToSaveDataForIndexing(finalizedCheckpoints []*consensysstructs.Final
 	go SaveSlotsAndCommittees(waitGroup)
 	waitGroup.Wait()
 }
+
 // Saves the blocks that came during their respective epochs
 func SaveBlocks(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
@@ -82,6 +86,7 @@ func SaveBlocks(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 		panic(err)
 	}
 }
+
 // The epochs are mapped with blocks and saved
 func SaveEpochs(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, processWaitGroup *sync.WaitGroup) {
 
@@ -92,9 +97,10 @@ func SaveEpochs(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 	var epochs []*models.Epoch
 	for index, blockItem := range blocks {
 		period, _ := strconv.Atoi(finalizedCheckpoints[index].Epoch)
+		blockItemID:=uint(blockItem.ID)
 		epochs = append(epochs, &models.Epoch{
-			Period: uint(period),
-			Bid:    uint(blockItem.ID),
+			Period:  uint(period),
+			BlockId:  &blockItemID,
 		})
 	}
 	epochRepo := &repositories.EpochRepo{
@@ -117,8 +123,8 @@ func SaveStates(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 	for index, epochItem := range epochs {
 		states = append(states, &models.State{
 			StateStored: finalizedCheckpoints[index].State,
-			Bid:         epochItem.Bid,
-			Eid:         epochItem.ID,
+			BlockId:     epochItem.BlockId,
+			EpochId:     &epochItem.ID,
 		})
 	}
 	stateRepo := &repositories.StateRepo{
@@ -130,6 +136,7 @@ func SaveStates(finalizedCheckpoints []*consensysstructs.FinalizedCheckpoint, pr
 	}
 	statesAndValidatorsChannel <- states
 }
+
 // The unique validators are saved
 func SaveValidators(processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
@@ -146,7 +153,7 @@ func SaveValidators(processWaitGroup *sync.WaitGroup) {
 	for _, stateItem := range states {
 		getValidatorsFromStateWaitGroup.Add(1)
 		// StateStored can be passed for the results in that specifice state
-		go GetValidatorsFromState(stateItem.ID, stateItem.Eid, string(consensysconsts.Finalized), consensysInstance, queueForValidatorToValidatorsStatusChannel)
+		go GetValidatorsFromState(&stateItem.ID, stateItem.EpochId, stateItem.BlockId, string(consensysconsts.Finalized), consensysInstance, queueForValidatorToValidatorsStatusChannel)
 	}
 	go func() {
 		for queueForValidatorToValidatorsStatusChannelReceived := range queueForValidatorToValidatorsStatusChannel {
@@ -170,6 +177,7 @@ func SaveValidators(processWaitGroup *sync.WaitGroup) {
 	defer close(queueForValidatorToValidatorsStatusChannel)
 	validatorToValidatorsStatusChannel <- &structs.ValidatorToValidatorsStatusChannelStruct{ValidatorStatuses: validatorStatusToBeCreated, Validators: validatorsToBeCreated}
 }
+
 // The status of the validator in a slot is saved. It also saves whether the validator was saved or not.
 func SaveValidatorsStatus(processWaitGroup *sync.WaitGroup) {
 	defer processWaitGroup.Done()
@@ -195,11 +203,12 @@ func SaveValidatorsStatus(processWaitGroup *sync.WaitGroup) {
 		indexValidatorsMapValue, exists := indexValidatorsMap[validatorToValidatorsStatusChannelData.Validators[iteratedIndex].Index]
 		if exists {
 			validatorStatuses = append(validatorStatuses, &models.ValidatorStatus{
-				StateId:   validatorStatusItem.StateId,
-				Eid:       validatorStatusItem.Eid,
-				IsSlashed: validatorStatusItem.IsSlashed,
-				Status:    validatorStatusItem.Status,
-				Vid:       indexValidatorsMapValue,
+				StateId:     validatorStatusItem.StateId,
+				EpochId:     validatorStatusItem.EpochId,
+				IsSlashed:   validatorStatusItem.IsSlashed,
+				Status:      validatorStatusItem.Status,
+				ValidatorId: &indexValidatorsMapValue,
+				BlockId:     validatorStatusItem.BlockId,
 			})
 		}
 	}
@@ -213,6 +222,7 @@ func SaveValidatorsStatus(processWaitGroup *sync.WaitGroup) {
 	}
 	validatorsStatusAndSaveSlotsAndCommitteesChannel <- true
 }
+
 // Mapping the committies with the validators and saving them
 func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	<-validatorsStatusAndSaveSlotsAndCommitteesChannel
@@ -244,7 +254,7 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	for _, stateItem := range states {
 		getCommittieesWaitGroup.Add(1)
 		// StateStored can be passed for the results in that specifice state
-		go GetCommittieesFromStateAndEpoch(stateItem.ID, string(consensysconsts.Finalized), stateItem.Eid, stateItem.Epoch.Period, consensysInstance, queueForCommittieesFromStateAndEpochDataChannel)
+		go GetCommittieesFromStateAndEpoch(&stateItem.ID, string(consensysconsts.Finalized), stateItem.EpochId, stateItem.Epoch.Period, stateItem.BlockId, consensysInstance, queueForCommittieesFromStateAndEpochDataChannel)
 	}
 
 	go func() {
@@ -255,20 +265,20 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 			getCommittieesWaitGroup.Done()
 		}
 	}()
-
 	getCommittieesWaitGroup.Wait()
 	var slotsToBeCreated []*models.Slot
 	var validatorsIndexesMap = map[uint64]struct{}{}
 	for _, committieesFromStateAndEpochDataArrayItem := range CommittieesFromStateAndEpochDataArray {
 		for _, slotDataItem := range committieesFromStateAndEpochDataArrayItem.SlotData {
-			index,_ := helpers.ConvertStringToUInt64(slotDataItem.Index)
+			index, _ := helpers.ConvertStringToUInt64(slotDataItem.Index)
 			slotsToBeCreated = append(slotsToBeCreated, &models.Slot{
 				Index:   index,
-				Eid:     committieesFromStateAndEpochDataArrayItem.Eid,
+				EpochId: committieesFromStateAndEpochDataArrayItem.EpochId,
 				StateId: committieesFromStateAndEpochDataArrayItem.StateId,
+				BlockId: committieesFromStateAndEpochDataArrayItem.BlockId,
 			})
 			for _, validatorItem := range slotDataItem.Validators {
-				validatorsIndexKey,_:=helpers.ConvertStringToUInt64(validatorItem)
+				validatorsIndexKey, _ := helpers.ConvertStringToUInt64(validatorItem)
 				validatorsIndexesMap[validatorsIndexKey] = struct{}{}
 			}
 		}
@@ -291,10 +301,11 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 		for slotIndex, slotDataItem := range committieesFromStateAndEpochDataArrayItem.SlotData {
 			for _, validatorItem := range slotDataItem.Validators {
 				committees = append(committees, &models.Committee{
-					Eid:     states[committieesFromStateAndEpochDataArrayIndex].Eid,
-					StateId: states[committieesFromStateAndEpochDataArrayIndex].ID,
-					SlotId:  slots[slotIndex].ID,
-					Vid:     validatorsMap[validatorItem].ID,
+					EpochId:     states[committieesFromStateAndEpochDataArrayIndex].EpochId,
+					StateId:     &states[committieesFromStateAndEpochDataArrayIndex].ID,
+					SlotId:      &slots[slotIndex].ID,
+					ValidatorId: &validatorsMap[validatorItem].ID,
+					BlockId:     states[committieesFromStateAndEpochDataArrayIndex].BlockId,
 				})
 			}
 		}
@@ -305,6 +316,7 @@ func SaveSlotsAndCommittees(processWaitGroup *sync.WaitGroup) {
 	}
 	committeeRepo.CreateMany(committees)
 }
+
 // Slots are insereted in to the DB
 func CreateManySlots(slotsToBeCreated []*models.Slot, createManySlotsChannel chan []*models.Slot) {
 	slotRepo := &repositories.SlotRepo{

@@ -32,3 +32,15 @@ func (blockRepo *BlockRepo) Create(block *models.Block) (uint, error) {
 	}
 	return block.ID, nil
 }
+
+
+// Fetches paginated blocks
+func (blockRepo *BlockRepo) FetchPaginatedData(offset int, limit int) ([]*models.Block, error) {
+	var blocks []*models.Block
+
+	result := blockRepo.Db.Offset(offset).Limit(limit).Find(&blocks)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return blocks, nil
+}

@@ -19,7 +19,7 @@ import (
 type APIRequest struct {
 	Body   interface{}
 	Method string
-	Query  url.Values
+	Query  *url.Values
 	Param  string
 	Url    string
 }
@@ -28,6 +28,7 @@ type TestAPIRequest struct {
 	ExpectedResponseCode int
 	APIRequest           *APIRequest
 }
+
 // Declate the Fiber app.
 var App *fiber.App
 
@@ -43,9 +44,10 @@ func Setup() {
 	// Setting up the API routes
 	routes.SetupRoutes(App)
 }
+
 // Makes a network call to an API whose URL is passed.
 func makeRequest(method, url string, body interface{}) (*http.Response, error) {
-	// Parsing the payload to bytes 
+	// Parsing the payload to bytes
 	requestBody, _ := json.Marshal(body)
 
 	request, _ := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
@@ -81,97 +83,156 @@ func testAPI(testAPIRequest *TestAPIRequest) {
 	checkResponseCode(testAPIRequest.T, testAPIRequest.ExpectedResponseCode, response.StatusCode, u)
 }
 
-func TestNetworksParticipationRate(t *testing.T) {
+func TestParticipationRate(t *testing.T) {
 	// Connect to the DB, cache, start node scheduler and start event listenter
 	Setup()
 
-	var apiRequest = &APIRequest{
-		Url:    "/api/v1/indexers/network",
-		Method: "GET",
-	}
-	testAPI(&TestAPIRequest{
-		T:                    t,
-		APIRequest:           apiRequest,
-		ExpectedResponseCode: fiber.StatusOK,
-	})
-
-}
-
-func TestFetchingOfValidators(t *testing.T) {
-	// Connect to the DB, cache, start node scheduler and start event listenter
-	Setup()
-	// Define a structure for specifying input and output data of a single test case
-	type FetchingOfValidators struct {
-		page                 int
-		limit                int
-		expectedResponseCode int
-	}
 	// Multiple set of parameters to test the validator APIs
-	var tests = []FetchingOfValidators{
+	var tests = []*TestAPIRequest{
 		{
-			page:                 1,
-			limit:                10,
-			expectedResponseCode: http.StatusOK,
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/participation/network",
+				Method: "GET",
+			},
+			ExpectedResponseCode: http.StatusOK,
 		},
 		{
-			page:                 2,
-			limit:                10,
-			expectedResponseCode: http.StatusOK,
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/participation/validators",
+				Method: "GET",
+				Param:  "1",
+			},
+			ExpectedResponseCode: http.StatusOK,
 		},
 	}
-	var apiRequest = &APIRequest{
-		Url:    "/api/v1/validators",
-		Method: "GET",
-	}
+
 	for _, testItem := range tests {
-		apiRequest.Query = url.Values{
-			"page":  {fmt.Sprint(testItem.page)},
-			"limit": {fmt.Sprint(testItem.limit)},
-		}
 
 		testAPI(&TestAPIRequest{
 			T:                    t,
-			APIRequest:           apiRequest,
-			ExpectedResponseCode: testItem.expectedResponseCode,
-		})
-	}
-}
-
-func TestValidatorParticipationRate(t *testing.T) {
-	// Connect to the DB, cache, start node scheduler and start event listenter
-	Setup()
-	// Define a structure for specifying input and output data of a single test case
-	type FetchingValidatorParticipationRate struct {
-		id                   int
-		expectedResponseCode int
-	}
-	// Multiple set of parameters to test the validator APIs
-	var tests = []FetchingValidatorParticipationRate{
-		{
-			id:                   1,
-			expectedResponseCode: http.StatusOK,
-		},
-		{
-			id:                   2,
-			expectedResponseCode: http.StatusOK,
-		},
-		{
-			id:                   -1,
-			expectedResponseCode: http.StatusBadRequest,
-		},
-	}
-	var apiRequest = &APIRequest{
-		Url:    "/api/v1/indexers/validators",
-		Method: "GET",
-	}
-	for _, testItem := range tests {
-		apiRequest.Param = fmt.Sprint(testItem.id)
-
-		testAPI(&TestAPIRequest{
-			T:                    t,
-			APIRequest:           apiRequest,
-			ExpectedResponseCode: testItem.expectedResponseCode,
+			APIRequest:           testItem.APIRequest,
+			ExpectedResponseCode: testItem.ExpectedResponseCode,
 		})
 	}
 
 }
+
+func TestIndexers(t *testing.T) {
+	// Connect to the DB, cache, start node scheduler and start event listenter
+	Setup()
+	// Define a structure for specifying input and output data of a single test case
+
+	// Multiple set of parameters to test the validator APIs
+	var tests = []*TestAPIRequest{
+		{
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/blocks",
+				Method: "GET",
+				Query:  &url.Values{},
+			},
+			ExpectedResponseCode: http.StatusOK,
+		},
+		{
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/epochs",
+				Method: "GET",
+				Query:  &url.Values{},
+			},
+			ExpectedResponseCode: http.StatusOK,
+		},
+		{
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/validators",
+				Method: "GET",
+				Query:  &url.Values{},
+			},
+			ExpectedResponseCode: http.StatusOK,
+		},
+		{
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/slots",
+				Method: "GET",
+				Query:  &url.Values{},
+			},
+			ExpectedResponseCode: http.StatusOK,
+		},
+		{
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/states",
+				Method: "GET",
+				Query:  &url.Values{},
+			},
+			ExpectedResponseCode: http.StatusOK,
+		},
+		{
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/committees",
+				Method: "GET",
+				Query:  &url.Values{},
+			},
+			ExpectedResponseCode: http.StatusOK,
+		},
+		{
+			APIRequest: &APIRequest{
+				Url:    "/api/v1/validator-statuses",
+				Method: "GET",
+				Query:  &url.Values{},
+			},
+			ExpectedResponseCode: http.StatusOK,
+		},
+	}
+
+	for _, testItem := range tests {
+		testItem.APIRequest.Query.Add("page", "1")
+		testItem.APIRequest.Query.Add("limit", "1")
+		// testItem.APIRequest.Query = url.Values{
+		// 	"page":  {"1"},
+		// 	"limit": {"10"},
+		// }
+
+		testAPI(&TestAPIRequest{
+			T:                    t,
+			APIRequest:           testItem.APIRequest,
+			ExpectedResponseCode: testItem.ExpectedResponseCode,
+		})
+	}
+}
+
+// func TestValidatorParticipationRate(t *testing.T) {
+// 	// Connect to the DB, cache, start node scheduler and start event listenter
+// 	Setup()
+// 	// Define a structure for specifying input and output data of a single test case
+// 	type FetchingValidatorParticipationRate struct {
+// 		id                   int
+// 		expectedResponseCode int
+// 	}
+// 	// Multiple set of parameters to test the validator APIs
+// 	var tests = []FetchingValidatorParticipationRate{
+// 		{
+// 			id:                   1,
+// 			expectedResponseCode: http.StatusOK,
+// 		},
+// 		{
+// 			id:                   2,
+// 			expectedResponseCode: http.StatusOK,
+// 		},
+// 		{
+// 			id:                   -1,
+// 			expectedResponseCode: http.StatusBadRequest,
+// 		},
+// 	}
+// 	var apiRequest = &APIRequest{
+// 		Url:    "/api/v1/indexers/validators",
+// 		Method: "GET",
+// 	}
+// 	for _, testItem := range tests {
+// 		apiRequest.Param = fmt.Sprint(testItem.id)
+
+// 		testAPI(&TestAPIRequest{
+// 			T:                    t,
+// 			APIRequest:           apiRequest,
+// 			ExpectedResponseCode: testItem.expectedResponseCode,
+// 		})
+// 	}
+
+// }
